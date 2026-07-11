@@ -1,0 +1,2134 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PROJECT YEMONT CEO OS</title>
+  <style>
+    :root {
+      --ink: #251d18;
+      --muted: #74685f;
+      --line: #ead3a4;
+      --panel: #ffffff;
+      --soft: #fff8df;
+      --nav: #182d58;
+      --nav2: #274a86;
+      --brown: #2a1b16;
+      --yellow: #f0c51f;
+      --orange: #e46f29;
+      --teal: #3a8f87;
+      --blue: #2f5fa8;
+      --amber: #c9861d;
+      --red: #c65d35;
+      --green-bg: #eaf6ee;
+      --blue-bg: #edf4ff;
+      --amber-bg: #fff4cf;
+      --red-bg: #fff0e7;
+      --shadow: 0 12px 28px rgba(42, 27, 22, 0.12);
+      --font-ui: "Comic Sans MS", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+
+    html {
+      font-family: var(--font-ui);
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #fff8e8;
+      font-family: var(--font-ui);
+      letter-spacing: 0;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+      font-family: var(--font-ui);
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      min-height: 36px;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-weight: 720;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, var(--yellow), var(--orange));
+      border-color: #d88a22;
+      color: #241813;
+    }
+
+    button.subtle {
+      background: #fff4c9;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      min-height: 36px;
+      padding: 8px 10px;
+    }
+
+    input[type="checkbox"]:not(.row-select) {
+      width: 22px;
+      height: 22px;
+      min-width: 22px;
+      min-height: 22px;
+      padding: 0;
+      accent-color: var(--teal);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 74px;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      background: linear-gradient(180deg, #14294f 0%, #1d2f58 48%, #2a1b16 100%);
+      color: #fff;
+      padding: 22px 16px;
+      overflow: auto;
+    }
+
+    .brand {
+      padding: 0 8px 18px;
+      border-bottom: 1px solid rgba(240, 197, 31, 0.28);
+      margin-bottom: 14px;
+    }
+
+    .brand .eyebrow {
+      font-size: 12px;
+      color: #f0c51f;
+      font-weight: 780;
+      letter-spacing: 0.08em;
+    }
+
+    .brand h1 {
+      margin: 7px 0 4px;
+      font-size: 25px;
+      line-height: 1.1;
+      color: #fff7d8;
+    }
+
+    .brand p {
+      margin: 0;
+      color: #f5db9a;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .navbtn {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: transparent;
+      border-color: transparent;
+      color: #f7e6bd;
+      margin: 3px 0;
+      text-align: left;
+    }
+
+    .navbtn.dragging {
+      opacity: 0.45;
+    }
+
+    .drag-handle {
+      color: inherit;
+      opacity: 0.55;
+      margin-right: 6px;
+    }
+
+    .navbtn.active {
+      background: linear-gradient(135deg, #f4ca2c, #ea7a2b);
+      color: #241813;
+    }
+
+    .navbtn .count {
+      color: inherit;
+      opacity: 0.7;
+      font-size: 12px;
+    }
+
+    .content {
+      min-width: 0;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 15;
+      background: rgba(255, 250, 236, 0.96);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+    }
+
+    .topbar-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 22px;
+    }
+
+    .title h2 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.2;
+    }
+
+    .title p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .save-status {
+      align-self: center;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 760;
+      white-space: nowrap;
+    }
+
+    .file-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      min-height: 36px;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 720;
+      cursor: pointer;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    main {
+      padding: 22px;
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    .grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .metrics {
+      grid-template-columns: repeat(5, minmax(150px, 1fr));
+    }
+
+    .two {
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+    }
+
+    .three {
+      grid-template-columns: repeat(3, minmax(220px, 1fr));
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card.pad {
+      padding: 16px;
+    }
+
+    .metric {
+      padding: 15px;
+      min-height: 98px;
+    }
+
+    .metric .label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 760;
+    }
+
+    .metric .value {
+      margin-top: 8px;
+      font-size: 28px;
+      line-height: 1.15;
+      font-weight: 820;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
+    .metric .hint {
+      margin-top: 9px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-head h3 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .section-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .mini-btn {
+      min-height: 30px;
+      padding: 5px 8px;
+      font-size: 12px;
+    }
+
+    .drag-cell {
+      width: 42px;
+      text-align: center;
+      color: var(--muted);
+      cursor: grab;
+      font-size: 17px;
+      font-weight: 900;
+      user-select: none;
+    }
+
+    tr.dragging,
+    .task-row.dragging,
+    .check-group.dragging,
+    .check-item.dragging {
+      opacity: 0.45;
+    }
+
+    .row-select {
+      width: 14px;
+      height: 14px;
+      min-width: 14px;
+      min-height: 14px;
+      padding: 0;
+      margin: 0;
+      accent-color: var(--nav);
+    }
+
+    .select-cell {
+      width: 38px;
+      text-align: center;
+    }
+
+    .toolbar input, .toolbar select {
+      width: auto;
+      min-width: 170px;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      max-height: calc(100vh - 235px);
+    }
+
+    table {
+      border-collapse: separate;
+      border-spacing: 0;
+      width: 100%;
+      min-width: 1600px;
+      font-size: 13px;
+    }
+
+    .franchise-table {
+      min-width: 5000px;
+    }
+
+    .franchise-table th:nth-child(1),
+    .franchise-table td:nth-child(1) {
+      min-width: 38px;
+      width: 38px;
+    }
+
+    .franchise-table th:nth-child(2),
+    .franchise-table td:nth-child(2) {
+      min-width: 42px;
+      width: 42px;
+    }
+
+    .franchise-table th:nth-child(4),
+    .franchise-table td:nth-child(4) {
+      min-width: 150px;
+      width: 150px;
+      max-width: 150px;
+    }
+
+    .franchise-table th:nth-child(5),
+    .franchise-table td:nth-child(5) {
+      min-width: 430px;
+      width: 430px;
+      max-width: 430px;
+    }
+
+    .franchise-table th:nth-child(6),
+    .franchise-table td:nth-child(6) {
+      min-width: 118px;
+      width: 118px;
+      max-width: 118px;
+    }
+
+    .franchise-table th:nth-child(3),
+    .franchise-table td:nth-child(3) {
+      min-width: 54px;
+      width: 54px;
+      max-width: 54px;
+    }
+
+    .branch-title {
+      display: block;
+      white-space: nowrap;
+      font-weight: 820;
+      line-height: 1.25;
+      font-size: 13px;
+    }
+
+    .branch-sub {
+      display: block;
+      white-space: nowrap;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.25;
+    }
+
+    .address-text,
+    .phone-text {
+      display: block;
+      white-space: nowrap;
+      line-height: 1.3;
+      font-size: 13px;
+    }
+
+    .address-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .phone-text {
+      letter-spacing: 0;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 8px;
+      text-align: left;
+      vertical-align: middle;
+      background: #fff;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      background: #fff0b8;
+      color: #3a2a1f;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    td:first-child, th:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 5;
+      background: #fff8df;
+    }
+
+    th:first-child {
+      z-index: 7;
+      background: #f4d35e;
+    }
+
+    td input, td select, td textarea {
+      min-width: 96px;
+      font-size: 13px;
+    }
+
+    td textarea {
+      min-width: 300px;
+      min-height: 54px;
+      field-sizing: content;
+      overflow: hidden;
+      white-space: pre-wrap;
+      line-height: 1.45;
+    }
+
+    td input[type="text"],
+    td input:not([type]),
+    td input[type="url"] {
+      min-width: 150px;
+    }
+
+    .auto-cell {
+      width: var(--w, 150px);
+      max-width: 520px;
+    }
+
+    .auto-textarea {
+      width: var(--w, 300px);
+      max-width: 620px;
+    }
+
+    .num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 26px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .pill.blue {
+      background: var(--blue-bg);
+      color: var(--blue);
+    }
+
+    .pill.green {
+      background: var(--green-bg);
+      color: var(--teal);
+    }
+
+    .pill.amber {
+      background: var(--amber-bg);
+      color: var(--amber);
+    }
+
+    .pill.red {
+      background: var(--red-bg);
+      color: var(--red);
+    }
+
+    .score {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 58px;
+      height: 28px;
+      border-radius: 999px;
+      font-weight: 820;
+      font-variant-numeric: tabular-nums;
+      background: var(--red-bg);
+      color: var(--red);
+    }
+
+    .score.mid {
+      background: var(--amber-bg);
+      color: var(--amber);
+    }
+
+    .score.high {
+      background: var(--green-bg);
+      color: var(--teal);
+    }
+
+    .stars {
+      font-weight: 820;
+      color: #b87912;
+      white-space: nowrap;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 10px;
+      padding: 16px;
+    }
+
+    .timeline-overview {
+      display: grid;
+      grid-template-columns: 132px minmax(0, 1fr);
+      gap: 16px;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fff6d7;
+    }
+
+    .donut {
+      width: 112px;
+      height: 112px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: conic-gradient(var(--orange) calc(var(--p) * 1%), #f2dfb3 0);
+      position: relative;
+      font-weight: 820;
+      color: var(--ink);
+    }
+
+    .donut::after {
+      content: "";
+      position: absolute;
+      inset: 13px;
+      border-radius: 50%;
+      background: #fff;
+    }
+
+    .donut span {
+      position: relative;
+      z-index: 1;
+    }
+
+    .milestone {
+      display: grid;
+      grid-template-columns: 100px minmax(0, 1fr) 120px;
+      gap: 12px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fffef8;
+    }
+
+    .task-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .task-row {
+      display: grid;
+      grid-template-columns: 28px 34px minmax(520px, 1fr) 72px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .task-row input[type="text"] {
+      min-height: 32px;
+      width: 100%;
+    }
+
+    .checklist-section {
+      display: grid;
+      gap: 10px;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .check-group {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .check-group summary {
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 14px;
+      font-weight: 820;
+      background: #fff3c7;
+    }
+
+    .check-items {
+      display: grid;
+      gap: 8px;
+      padding: 12px 14px 14px;
+    }
+
+    .group-memo {
+      margin: 0 14px 14px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--line);
+    }
+
+    .check-item {
+      display: grid;
+      grid-template-columns: 34px 26px minmax(260px, 1fr);
+      gap: 8px;
+      align-items: start;
+      line-height: 1.45;
+    }
+
+    .check-item input {
+      margin-top: 4px;
+    }
+
+    .bar {
+      height: 9px;
+      border-radius: 999px;
+      background: #f2dfb3;
+      overflow: hidden;
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--yellow), var(--orange));
+    }
+
+    .todo-list {
+      display: grid;
+      gap: 8px;
+      padding: 16px;
+    }
+
+    .todo {
+      display: grid;
+      grid-template-columns: 26px minmax(0, 1fr) 92px;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .recent-list {
+      display: grid;
+      gap: 8px;
+      padding: 16px;
+    }
+
+    .recent-item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .recent-item strong {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .todo.done {
+      opacity: 0.58;
+    }
+
+    .todo-title {
+      font-weight: 760;
+    }
+
+    .todo-meta {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 3px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(160px, 1fr));
+      gap: 10px;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fff8df;
+    }
+
+    .form-grid label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 760;
+    }
+
+    .form-grid .wide {
+      grid-column: span 2;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+      margin: 0;
+    }
+
+    .auth-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: none;
+      place-items: center;
+      padding: 22px;
+      background: linear-gradient(145deg, rgba(20, 41, 79, 0.96), rgba(42, 27, 22, 0.96));
+    }
+
+    .auth-screen.active {
+      display: grid;
+    }
+
+    .auth-card {
+      width: min(440px, 100%);
+      background: #fffaf0;
+      border: 1px solid #f0c51f;
+      border-radius: 8px;
+      box-shadow: 0 22px 60px rgba(0, 0, 0, 0.28);
+      padding: 22px;
+    }
+
+    .auth-card h1 {
+      margin: 0;
+      color: var(--nav);
+      font-size: 28px;
+      line-height: 1.15;
+    }
+
+    .auth-card p {
+      color: var(--muted);
+      line-height: 1.55;
+      margin: 8px 0 18px;
+    }
+
+    .auth-card label {
+      display: grid;
+      gap: 6px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 760;
+    }
+
+    .auth-card .primary {
+      width: 100%;
+      margin-top: 14px;
+    }
+
+    .auth-message {
+      margin-top: 10px;
+      min-height: 18px;
+      color: var(--red);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 1100px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        height: auto;
+      }
+
+      .metrics, .three, .two {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar-inner {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-grid .wide {
+        grid-column: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="authScreen" class="auth-screen active">
+    <form id="loginForm" class="auth-card">
+      <div class="eyebrow">PROJECT YEMONT</div>
+      <h1>스콜라 몬테소리<br>공용 로그인</h1>
+      <p>같은 계정으로 로그인하면 어느 기기에서든 같은 창업 OS 데이터를 이어서 볼 수 있습니다.</p>
+      <label>이메일
+        <input id="loginEmail" type="email" autocomplete="email" required>
+      </label>
+      <label>비밀번호
+        <input id="loginPassword" type="password" autocomplete="current-password" required>
+      </label>
+      <button class="primary" type="submit">로그인</button>
+      <div id="authMessage" class="auth-message"></div>
+    </form>
+  </div>
+
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="eyebrow">PROJECT YEMONT</div>
+        <h1>CEO OS</h1>
+        <p>스콜라 몬테소리 동탄호수공원점 창업 준비 바이블</p>
+      </div>
+      <nav id="nav"></nav>
+    </aside>
+
+    <div class="content">
+      <header class="topbar">
+        <div class="topbar-inner">
+          <div class="title">
+            <h2 id="viewTitle">HOME</h2>
+            <p id="viewDesc">오늘 할 일, 자금 일정, 오픈 준비 진행률을 한 화면에서 봅니다.</p>
+          </div>
+          <div class="actions">
+            <span class="save-status" id="saveStatus">자동저장 준비</span>
+            <span class="save-status" id="cloudUser">로그인 확인 중</span>
+            <button id="reloadCloudBtn" type="button">최신불러오기</button>
+            <button id="logoutBtn" type="button">로그아웃</button>
+            <button id="undoBtn" type="button">되돌리기</button>
+            <button class="primary" id="saveBtn" type="button">저장</button>
+            <button id="exportBtn" type="button">백업</button>
+            <label class="file-label" for="importFile">복원</label>
+            <input id="importFile" type="file" accept="application/json">
+            <button id="resetBtn" class="subtle" type="button">초기화</button>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <section id="home" class="view active"></section>
+        <section id="franchises" class="view"></section>
+        <section id="competitors" class="view"></section>
+        <section id="properties" class="view"></section>
+        <section id="location" class="view"></section>
+        <section id="timeline" class="view"></section>
+        <section id="finance" class="view"></section>
+        <section id="content" class="view"></section>
+        <section id="learning" class="view"></section>
+        <section id="kpi" class="view"></section>
+        <section id="journal" class="view"></section>
+        <section id="todo" class="view"></section>
+        <section id="contractChecklist" class="view"></section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const storageKey = "project-yemont-ceo-os-v3";
+    const authStorageKey = "project-yemont-supabase-session-v1";
+    const cloudProjectId = "main";
+    const supabaseProjectUrl = "https://pmlakjublivcwrewdemx.supabase.co";
+    const supabaseRestUrl = `${supabaseProjectUrl}/rest/v1`;
+    const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtbGFranVibGl2Y3dyZXdkZW14Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3Nzc0ODMsImV4cCI6MjA5OTM1MzQ4M30.c_JW6qaGzg0LHTOa7jEiKrILnXiv8WDWakNDwrvNrgs";
+
+    const navItems = [
+      ["home", "HOME", "핵심 현황"],
+      ["franchises", "가맹점 DB", "17"],
+      ["competitors", "경쟁센터 DB", "4"],
+      ["properties", "상가 후보 DB", "1"],
+      ["location", "동탄 입지 분석", "준비"],
+      ["timeline", "오픈 타임라인", "1월"],
+      ["finance", "자금 관리", "계획"],
+      ["content", "블로그·인스타", "100"],
+      ["learning", "교육 공부", "아카이브"],
+      ["kpi", "KPI·동탄100", "목표"],
+      ["journal", "창업일지", "기록"],
+      ["todo", "To-do", "오늘"],
+      ["contractChecklist", "계약시 체크리스트", "본계약"]
+    ];
+
+    const viewMeta = {
+      home: ["HOME", "오늘 할 일, 자금 일정, 오픈 준비 진행률을 한 화면에서 봅니다."],
+      franchises: ["가맹점 DB", "17개 스콜라 센터의 온라인·입지·운영 특성을 기록합니다."],
+      competitors: ["경쟁센터 DB", "경쟁센터의 콘텐츠, 입지, 가격, 차별점, 따라할 점을 분석합니다."],
+      properties: ["상가 후보 DB", "그랑파사쥬 등 상가 후보의 비용, 입지, 계약 진행상황을 관리합니다."],
+      location: ["동탄 입지 분석", "호수공원 상권, 대단지, 병원, 카페, 학원 동선을 정리합니다."],
+      timeline: ["오픈 타임라인", "7월 계약부터 연말/연초 오픈까지 월별 실행을 추적합니다."],
+      finance: ["자금 관리", "가맹계약, 인테리어, 상가계약, 예비비 일정을 한 곳에서 봅니다."],
+      content: ["블로그·인스타", "오픈 전 브랜드 콘텐츠, 글감, 릴스, 후기 전략을 관리합니다."],
+      learning: ["교육 공부", "몬테소리 자격증, 책, 강의, 교구, 논문, 영상을 모읍니다."],
+      kpi: ["KPI·동탄100", "회원 100명 목표와 상담, 체험, 리뷰, 콘텐츠 지표를 관리합니다."],
+      journal: ["창업일지", "상담, 조사, 결정사항, 불안요소, 배운 점을 기록합니다."],
+      todo: ["To-do", "센터 오픈까지 해야 할 일을 날짜와 단계별로 관리합니다."],
+      contractChecklist: ["계약시 체크리스트", "2026년 7월 12일 스콜라 몬테소리 본계약 전 확인할 질문과 요청 서류를 체크합니다."]
+    };
+
+    const franchiseSeed = [
+      [1, "인천 송도점", "인천", "연수구", "인천광역시 연수구 신송로 161, 5층 501호(송도동, 송도 하이츠)", "032-832-2688"],
+      [2, "인천 청라점", "인천", "서구", "인천광역시 서구 중봉대로586번길 9-4, 705호 (쓰리엠타워)", "032-567-1804"],
+      [3, "시흥 배곧신도시점", "경기", "시흥시", "시흥시 서울대학로278번길 8 아브뉴프랑 센트럴 레드 A동 343호", "031-509-3014"],
+      [4, "부천 상동점", "경기", "부천시", "부천시 상동로 78, 205호 (동양파라곤)", "032-325-1030"],
+      [5, "광명점", "경기", "광명시", "광명시 신기로17번길 11, 센트럴스퀘어 206호", "02-899-3758"],
+      [6, "인천 서창점", "인천", "남동구", "인천광역시 남동구 서창남순환로215번길 17 마스타프라자 707호", "032-472-5579"],
+      [7, "인천 검단신도시점", "인천", "서구", "인천광역시 서구 이음5로 20 (원당동) 연세프라자8차 801호,802호", "032-562-6810"],
+      [8, "김포 운양점", "경기", "김포시", "김포시 운양동 김포한강1로 230 현대스퀘어 613호", "031-996-9655"],
+      [9, "고양 삼송점", "경기", "고양시", "고양시 덕양구 권율대로 685 SIB타워 13층 1302호", "031-966-1123"],
+      [10, "하남 미사점", "경기", "하남시", "하남시 미사강변중앙로 226 우성르보아파크 210호", "031-793-3004"],
+      [11, "분당 정자점", "경기", "성남시", "성남시 분당구 성남대로331번길 3-3 젤존타워3차 502호", "031-603-9522"],
+      [12, "시흥 장현점", "경기", "시흥시", "시흥시 능곡번영길 26 에스피타워 501호", "031-314-6288"],
+      [13, "위례 신도시점", "경기", "성남시", "성남시 수정구 위례동로 153 에이플타워 510호", "010-5830-1026"],
+      [14, "수원 광교점", "경기", "수원시", "수원시 영통구 광교호수공원로 277 광교중흥S클래스 B1층 192, 193호", "031-307-4632"],
+      [15, "파주 운정점", "경기", "파주시", "경기 파주시 초롱꽃로 141 운정스타타워 B동 610호", "031-935-6017"],
+      [16, "판교점", "경기", "성남시", "경기 성남시 분당구 운중로 128, 마크시티그린 305호", "031-781-2226"],
+      [17, "동탄 호수공원점", "경기", "화성시", "(오픈 확정)", "-"]
+    ];
+
+    const defaults = {
+      settings: {
+        projectName: "PROJECT YEMONT",
+        centerName: "스콜라 몬테소리 동탄호수공원점",
+        likelyProperty: "그랑파사쥬",
+        contractDate: "2026-07-13",
+        balanceDate: "2026-09-28",
+        targetOpenDate: "2027-01-31",
+        targetMembers: "",
+        targetBlogPosts: "",
+        targetFollowers: "",
+        targetReviews: ""
+      },
+      kpi: {
+        members: 0,
+        consultations: 0,
+        trials: 0,
+        registrations: 0,
+        revenue: 0,
+        profit: 0,
+        blogPosts: 0,
+        followers: 0,
+        reviews: 0
+      },
+      navOrder: navItems.map(([id]) => id),
+      recentActivity: [],
+      franchises: franchiseSeed.map(([no, name, region, city, address, phone]) => ({
+        no, name, openYear: "", region, city, address, phone,
+        instagramUrl: "", blogUrl: "", homepage: "",
+        followers: "", instagramPosts: "", naverReviews: "", kakaoReviews: "", naverSaves: "",
+        pediatric: "", cafe: "", kidsCafe: "", kindergarten: "",
+        buildingFloors: "", centerFloorType: "", parkingSpaces: "", elevator: "",
+        under5Population: "", elementary: "", kindergartenBack: "", academyDensity: "", tradeAreaType: "",
+        rent: "", directorCareer: "", blogActivity: "", instagramActivity: "",
+        reviewPosts: "", parentContent: "", trialPromotion: "", recruitingMethod: "",
+        whyWorks: "", whyWeak: "", differentiation: "", learnings: "", weakness: "",
+        memo: name === "판교점" ? "우선 분석: 상권, 원장 브랜딩, 운영 구조" : name === "분당 정자점" ? "우선 분석: 블로그, 입지, 학부모 신뢰 포인트" : name === "위례 신도시점" ? "우선 분석: 신도시 학부모 동선과 콘텐츠" : name === "수원 광교점" ? "우선 분석: 호수공원형 입지와 비교" : ""
+      })),
+      competitors: [
+        { name: "소뇨몬테소리", region: "동탄/수도권", address: "", url: "", instagram: "", blog: "", price: "", reviews: "", deposit: "", rent: "", areaSize: "", floor: "", parking: "", pediatric: "", cafe: "", elevator: "", differentiation: "", copyPoint: "", weakness: "", negotiation: "", risk: "", memo: "" },
+        { name: "베베구쯔 몬테소리", region: "동탄/수도권", address: "", url: "", instagram: "", blog: "", price: "", reviews: "", deposit: "", rent: "", areaSize: "", floor: "", parking: "", pediatric: "", cafe: "", elevator: "", differentiation: "", copyPoint: "", weakness: "", negotiation: "", risk: "", memo: "" },
+        { name: "키즈퀘스천 몬테소리", region: "동탄/수도권", address: "", url: "", instagram: "", blog: "", price: "", reviews: "", deposit: "", rent: "", areaSize: "", floor: "", parking: "", pediatric: "", cafe: "", elevator: "", differentiation: "", copyPoint: "", weakness: "", negotiation: "", risk: "", memo: "" },
+        { name: "키즈에이원 몬테소리", region: "동탄/수도권", address: "", url: "", instagram: "", blog: "", price: "", reviews: "", deposit: "", rent: "", areaSize: "", floor: "", parking: "", pediatric: "", cafe: "", elevator: "", differentiation: "", copyPoint: "", weakness: "", negotiation: "", risk: "", memo: "" }
+      ],
+      properties: [
+        { name: "그랑파사쥬", area: "동탄 호수공원", naverRealEstateUrl: "", deposit: 30000000, rent: 2000000, areaSize: "30평 초반", floor: "4~5층", parking: "", pediatric: "", cafe: "", elevator: "", status: "1순위 후보", negotiation: "", risk: "월세는 100만원 후반~200만원 초반, 4~5층 30평 초반 조건을 벗어나면 재검토", score: 0, memo: "현재 가장 유력한 상가 후보" }
+      ],
+      timeline: [
+        { month: "7월", title: "가맹 계약 및 창업 OS 구축", due: "2026-07-31", tasks: [{ text: "7월 13일 계약금 3,500만원 준비", done: false }, { text: "PROJECT YEMONT OS 구조 확정", done: false }, { text: "17개 센터 DB 입력 시작", done: false }, { text: "블로그 브랜드 방향 설정", done: false }, { text: "자격증 수강 시작", done: false }] },
+        { month: "8월", title: "교육·상권조사·콘텐츠 기반", due: "2026-08-31", tasks: [{ text: "몬테소리 공부 루틴 만들기", done: false }, { text: "경쟁센터 4곳 1차 조사", done: false }, { text: "동탄 상권 후보 정리", done: false }, { text: "블로그 글감 축적", done: false }] },
+        { month: "9월", title: "잔금 및 상가 의사결정", due: "2026-09-28", tasks: [{ text: "9월 28일 잔금 6,200만원 지급 준비", done: false }, { text: "그랑파사쥬 조건 협상", done: false }, { text: "인테리어 견적 비교", done: false }] },
+        { month: "10월", title: "인테리어 계약·공사", due: "2026-10-31", tasks: [{ text: "인테리어 계약금/중도금/잔금 계획", done: false }, { text: "교실 구성 확정", done: false }, { text: "교구 배치 계획", done: false }, { text: "공사 사진 기록", done: false }] },
+        { month: "11월", title: "사전 모집·설명회", due: "2026-11-30", tasks: [{ text: "체험수업 홍보", done: false }, { text: "설명회 준비", done: false }, { text: "블로그 후기형 콘텐츠", done: false }, { text: "인스타 운영 루틴", done: false }] },
+        { month: "12월", title: "오픈 준비 최종 점검", due: "2026-12-31", tasks: [{ text: "오픈 체크리스트", done: false }, { text: "상담 스크립트", done: false }, { text: "리뷰 확보 루틴", done: false }, { text: "초기 회원 관리표", done: false }] },
+        { month: "1월", title: "오픈 및 초기 운영 안정화", due: "2027-01-31", tasks: [{ text: "오픈", done: false }, { text: "체험수업 전환 관리", done: false }, { text: "상담 기록", done: false }, { text: "초기 회원 관리", done: false }, { text: "월간 KPI 점검", done: false }] }
+      ],
+      finance: [
+        { category: "가맹계약", item: "계약금", due: "2026-07-13", amount: 35000000, status: "예정", memo: "7월 13일 계약 예정" },
+        { category: "가맹계약", item: "잔금", due: "2026-09-28", amount: 62000000, status: "예정", memo: "잔금 이후 인테리어 시작 예상" },
+        { category: "인테리어", item: "인테리어 총예산", due: "2026-10-01", amount: 80000000, status: "미정", memo: "계약금/중도금/잔금 비율 추후 설정" },
+        { category: "상가계약", item: "상가 보증금", due: "", amount: 30000000, status: "최소 기준", memo: "그랑파사쥬 조건 확인 필요" },
+        { category: "예비비", item: "예비비", due: "", amount: 0, status: "미정", memo: "마케팅, 교구, 운영자금 포함 필요" }
+      ],
+      contentIdeas: [
+        { title: "왜 몬테소리인가", channel: "블로그", stage: "글감", due: "", status: "대기", memo: "부모교육형 글" },
+        { title: "동탄 호수공원 엄마들이 교육센터를 고를 때 보는 것", channel: "블로그", stage: "글감", due: "", status: "대기", memo: "입지/생활동선 연결" },
+        { title: "교구 하나를 깊게 설명하는 릴스", channel: "인스타", stage: "릴스", due: "", status: "대기", memo: "전문성 브랜딩" }
+      ],
+      learning: [
+        { title: "몬테소리 자격증 공부", type: "자격증", progress: 0, status: "시작 전", memo: "7월 목표: 2개 수강 시작" },
+        { title: "교육도서 2권 읽기", type: "책", progress: 0, status: "시작 전", memo: "7월 목표" },
+        { title: "교구/환경 구성 아카이브", type: "교구", progress: 0, status: "수집", memo: "사진과 링크 저장" }
+      ],
+      journal: [
+        { date: "2026-07-10", topic: "Project MONT 시작", type: "결정", note: "노션 대신 HTML 기반 CEO OS로 창업 준비 전체를 관리하기로 함", next: "v1 구조 완성 후 실제 조사 데이터 입력" }
+      ],
+      todos: [
+        { title: "가맹계약 서류와 계약금 일정 확인", area: "계약", due: "2026-07-13", priority: "상", done: false },
+        { title: "잔금 6,200만원 지급 계획 확인", area: "계약", due: "2026-09-28", priority: "상", done: false }
+      ],
+      contractChecklist: [
+        { group: "1. 계약서 확인", memo: "", items: ["계약서 내용 천천히 모두 읽기", "모르는 내용은 전부 질문하기", "계약서 사본(또는 파일) 받을 수 있는지 확인", "계약서에 상권보호 내용 명시 여부 확인", "계약기간 확인", "계약 해지 조건 확인", "위약금 규정 확인", "로열티 시작 시점 확인 (3개월 면제 여부 포함)", "본사 공급 품목 및 일정 확인"].map(text => ({ text, done: false })) },
+        { group: "2. 상권 확인", memo: "", items: ["호수공원 권역 내 추가 출점 없음 확인", "동탄역은 별도 상권인 점 재확인", "호수공원 상권 범위(지도 기준) 확인", "상권보호 범위 계약서 기재 여부 확인"].map(text => ({ text, done: false })) },
+        { group: "3. 비용 확인", memo: "", items: ["총 가맹비 9,700만원 포함 내역", "교구", "가구", "교재", "설치", "추가 발생 가능한 비용 확인", "인테리어", "간판", "냉난방", "부가세", "배송", "전기증설", "소방", "CCTV", "기타", "인테리어 평균 비용 확인", "인테리어 예상 공사기간 확인"].map(text => ({ text, done: false })) },
+        { group: "4. 일정 확인", memo: "", items: ["9월 28일 잔금 일정 가능 여부", "상가 계약 진행 순서", "인테리어 착공 시점", "12월 오픈 일정 가능 여부"].map(text => ({ text, done: false })) },
+        { group: "5. 상가 관련", memo: "", items: ["대표님이라면 동탄역 vs 호수공원 어디를 추천하는지", "추천 이유", "절대 계약하면 안 되는 상가 특징", "좋은 상가의 필수 조건", "랜트프리 평균 몇 개월인지", "상가 후보 5곳 제출 시 어떤 기준으로 평가하는지"].map(text => ({ text, done: false })) },
+        { group: "6. 회원 모집", memo: "", items: ["최근 신규센터 회원 증가 사례", "체험수업 지원", "설명회 지원", "블로그/인스타 지원", "본사 마케팅 지원 범위"].map(text => ({ text, done: false })) },
+        { group: "7. 교육", memo: "", items: ["원장 교육", "교사 교육", "보수교육", "슈퍼바이징 횟수", "오픈 후 지원기간"].map(text => ({ text, done: false })) },
+        { group: "8. 사업 운영", memo: "", items: ["사업자대출 시 지원 가능한 서류", "사업계획서 제공 여부", "오픈 전 반드시 해야 하는 준비"].map(text => ({ text, done: false })) },
+        { group: "대표님께 꼭 물어볼 질문", memo: "", items: ["대표님이라면 제 상황에서는 동탄역과 호수공원 중 어디를 선택하시겠습니까?", "그 이유는 무엇인가요?", "성공한 원장님들의 공통점은 무엇인가요?", "실패했던 센터들의 공통점은 무엇인가요?", "제가 12월 오픈 전까지 가장 집중해야 하는 한 가지는 무엇인가요?", "지금 제가 가장 놓치고 있는 리스크는 무엇인가요?", "대표님 가족이 직접 창업한다면 지금부터 어떻게 준비하시겠습니까?"].map(text => ({ text, done: false })) },
+        { group: "요청하면 좋은 서류", memo: "", items: ["가맹계약서 사본(PDF 가능 여부)", "가맹금 내역서(항목별 비용)", "인테리어 견적서(예시)", "인테리어 시방서(가능하면)", "가구·교구 구성 리스트", "교재 구성 리스트", "오픈 일정표(표준 스케줄)", "원장 교육 커리큘럼", "교사 교육 커리큘럼", "운영 매뉴얼 목차(또는 제공 범위)", "홍보/마케팅 지원 자료", "브랜드 가이드(로고 사용 규정 등)", "사업자대출 등에 사용할 수 있는 가맹계약 확인서 또는 본사 발급 가능 서류"].map(text => ({ text, done: false })) },
+        { group: "추가로 확인하면 좋은 것", memo: "", items: ["인테리어 업체 변경 가능 여부", "추가 교구 구매 시 할인 여부", "A/S 범위", "교구 파손 시 처리 방법", "폐원 또는 양도 시 절차", "가맹권 양도 가능 여부", "교육비 추가 발생 여부", "필수 구매 품목 여부"].map(text => ({ text, done: false })) },
+        { group: "계약 후 해야 할 일", memo: "", items: ["계약서 다시 정독", "PROJECT YEMONT 업데이트", "자금 일정 업데이트", "상가 후보 조사 시작", "블로그/브랜딩 준비", "자격증 과정 진행", "교육 서적 읽기"].map(text => ({ text, done: false })) },
+        { group: "우선순위 ★★★★★", memo: "", items: ["가맹계약서 사본", "인테리어 견적 예시(또는 실제 견적 기준)", "가맹비 세부 내역서", "교구·가구 구성 리스트", "오픈 진행 일정표"].map(text => ({ text, done: false })) }
+      ]
+    };
+
+    let state = loadState();
+    let currentView = "home";
+    let undoStack = [];
+    let dragState = null;
+    let authSession = loadAuthSession();
+    let cloudSaveTimer = null;
+    let isCloudLoading = false;
+
+    function clone(value) {
+      return JSON.parse(JSON.stringify(value));
+    }
+
+    function loadState() {
+      const saved = localStorage.getItem(storageKey);
+      if (!saved) return clone(defaults);
+      try {
+        return mergeDeep(clone(defaults), JSON.parse(saved));
+      } catch {
+        return clone(defaults);
+      }
+    }
+
+    function mergeDeep(base, incoming) {
+      for (const key of Object.keys(incoming || {})) {
+        if (Array.isArray(incoming[key])) base[key] = incoming[key];
+        else if (incoming[key] && typeof incoming[key] === "object") base[key] = mergeDeep(base[key] || {}, incoming[key]);
+        else base[key] = incoming[key];
+      }
+      return base;
+    }
+
+    function money(value) {
+      const n = Number(value || 0);
+      return n ? `${Math.round(n / 10000).toLocaleString("ko-KR")}만원` : "미정";
+    }
+
+    function num(value) {
+      const n = Number(value);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function esc(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#039;"
+      }[char]));
+    }
+
+    function getNavItems() {
+      const map = new Map(navItems.map((item) => [item[0], item]));
+      const ordered = (state.navOrder || []).map((id) => map.get(id)).filter(Boolean);
+      const missing = navItems.filter(([id]) => !ordered.some(([orderedId]) => orderedId === id));
+      return [...ordered, ...missing];
+    }
+
+    function timelinePercent(item) {
+      const tasks = item.tasks || [];
+      if (!tasks.length) return 0;
+      return Math.round(tasks.filter((task) => task.done).length / tasks.length * 100);
+    }
+
+    function timelineOverallPercent() {
+      const tasks = state.timeline.flatMap((item) => item.tasks || []);
+      if (!tasks.length) return 0;
+      return Math.round(tasks.filter((task) => task.done).length / tasks.length * 100);
+    }
+
+    function completedTimelineTasks() {
+      return state.timeline.flatMap((item) => item.tasks || []).filter((task) => task.done).length;
+    }
+
+    function totalTimelineTasks() {
+      return state.timeline.flatMap((item) => item.tasks || []).length;
+    }
+
+    function daysUntil(dateString) {
+      const target = new Date(`${dateString}T00:00:00+09:00`);
+      const today = new Date("2026-07-10T00:00:00+09:00");
+      return Math.ceil((target - today) / 86400000);
+    }
+
+    function projectProgress() {
+      const totalTodos = state.todos.length || 1;
+      const doneTodos = state.todos.filter((todo) => todo.done).length;
+      const timelineProgress = timelineOverallPercent();
+      return Math.round((doneTodos / totalTodos * 40) + (timelineProgress * 0.6));
+    }
+
+    function setSaveStatus(message) {
+      const el = document.getElementById("saveStatus");
+      if (el) el.textContent = message;
+    }
+
+    function formatTime(date = new Date()) {
+      return date.toLocaleString("ko-KR", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+    }
+
+    function recordActivity(area, label, value) {
+      state.recentActivity = [
+        { at: new Date().toISOString(), area, label, value: String(value ?? "").slice(0, 80) },
+        ...(state.recentActivity || [])
+      ].slice(0, 12);
+    }
+
+    function saveState(showAlert = true, rerender = true) {
+      localStorage.setItem(storageKey, JSON.stringify(state));
+      setSaveStatus(authSession ? `온라인 저장 준비 ${formatTime()}` : `이 기기에 저장됨 ${formatTime()}`);
+      if (authSession) queueCloudSave(showAlert);
+      else if (showAlert) alert("이 기기에 저장되었습니다. 온라인 저장은 로그인 후 가능합니다.");
+      if (rerender) render();
+    }
+
+    function loadAuthSession() {
+      try {
+        return JSON.parse(localStorage.getItem(authStorageKey) || "null");
+      } catch {
+        return null;
+      }
+    }
+
+    function storeAuthSession(session) {
+      authSession = session;
+      if (session) localStorage.setItem(authStorageKey, JSON.stringify(session));
+      else localStorage.removeItem(authStorageKey);
+      updateAuthUi();
+    }
+
+    function authHeaders(useUserToken = true) {
+      const token = useUserToken && authSession?.access_token ? authSession.access_token : supabaseAnonKey;
+      return {
+        apikey: supabaseAnonKey,
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      };
+    }
+
+    function normalizeSession(payload) {
+      const expiresAt = payload.expires_at || Math.floor(Date.now() / 1000) + Number(payload.expires_in || 3600);
+      return {
+        access_token: payload.access_token,
+        refresh_token: payload.refresh_token,
+        expires_at: expiresAt,
+        user: payload.user || authSession?.user || null
+      };
+    }
+
+    async function ensureSession() {
+      if (!authSession?.access_token) throw new Error("로그인이 필요합니다.");
+      const now = Math.floor(Date.now() / 1000);
+      if (authSession.expires_at && authSession.expires_at > now + 60) return authSession;
+      if (!authSession.refresh_token) throw new Error("로그인이 만료되었습니다. 다시 로그인해 주세요.");
+      const res = await fetch(`${supabaseProjectUrl}/auth/v1/token?grant_type=refresh_token`, {
+        method: "POST",
+        headers: authHeaders(false),
+        body: JSON.stringify({ refresh_token: authSession.refresh_token })
+      });
+      if (!res.ok) {
+        storeAuthSession(null);
+        throw new Error("로그인이 만료되었습니다. 다시 로그인해 주세요.");
+      }
+      const session = normalizeSession(await res.json());
+      storeAuthSession(session);
+      return session;
+    }
+
+    function updateAuthUi() {
+      const authScreen = document.getElementById("authScreen");
+      const cloudUser = document.getElementById("cloudUser");
+      if (!authScreen || !cloudUser) return;
+      authScreen.classList.toggle("active", !authSession);
+      cloudUser.textContent = authSession?.user?.email ? `온라인: ${authSession.user.email}` : "로그인 필요";
+    }
+
+    function setAuthMessage(message, isError = true) {
+      const el = document.getElementById("authMessage");
+      if (!el) return;
+      el.style.color = isError ? "var(--red)" : "var(--teal)";
+      el.textContent = message;
+    }
+
+    async function signIn(email, password) {
+      setAuthMessage("로그인 중입니다...", false);
+      const res = await fetch(`${supabaseProjectUrl}/auth/v1/token?grant_type=password`, {
+        method: "POST",
+        headers: authHeaders(false),
+        body: JSON.stringify({ email, password })
+      });
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(payload.error_description || payload.msg || "로그인에 실패했습니다.");
+      storeAuthSession(normalizeSession(payload));
+      setAuthMessage("");
+      await loadCloudState();
+    }
+
+    function signOut() {
+      storeAuthSession(null);
+      setSaveStatus("로그아웃됨. 로그인하면 온라인 데이터를 불러옵니다.");
+    }
+
+    function queueCloudSave(showAlert = false) {
+      clearTimeout(cloudSaveTimer);
+      cloudSaveTimer = setTimeout(() => {
+        syncCloudState(showAlert);
+      }, showAlert ? 0 : 650);
+    }
+
+    function cloudDataIsEmpty(data) {
+      return !data || (typeof data === "object" && !Array.isArray(data) && Object.keys(data).length === 0);
+    }
+
+    async function loadCloudState() {
+      if (!authSession || isCloudLoading) return;
+      isCloudLoading = true;
+      setSaveStatus("온라인 데이터 불러오는 중...");
+      try {
+        await ensureSession();
+        const res = await fetch(`${supabaseRestUrl}/project_yemont_state?id=eq.${encodeURIComponent(cloudProjectId)}&select=data,updated_at`, {
+          headers: authHeaders(true)
+        });
+        const payload = await res.json().catch(() => []);
+        if (!res.ok) throw new Error(payload.message || "온라인 데이터를 불러오지 못했습니다.");
+        const row = Array.isArray(payload) ? payload[0] : null;
+        if (row && !cloudDataIsEmpty(row.data)) {
+          state = mergeDeep(clone(defaults), row.data);
+          localStorage.setItem(storageKey, JSON.stringify(state));
+          setSaveStatus(`온라인 데이터 불러옴 ${formatTime()}`);
+          render();
+        } else {
+          await syncCloudState(false);
+          setSaveStatus(`첫 온라인 데이터 생성됨 ${formatTime()}`);
+        }
+      } catch (error) {
+        setSaveStatus("온라인 연결 오류");
+        alert(`Supabase 연결을 확인해 주세요.\n\n${error.message}`);
+      } finally {
+        isCloudLoading = false;
+        updateAuthUi();
+      }
+    }
+
+    async function syncCloudState(showAlert = false) {
+      if (!authSession) return;
+      try {
+        await ensureSession();
+        setSaveStatus("온라인 저장 중...");
+        const res = await fetch(`${supabaseRestUrl}/project_yemont_state?on_conflict=id`, {
+          method: "POST",
+          headers: {
+            ...authHeaders(true),
+            Prefer: "resolution=merge-duplicates,return=minimal"
+          },
+          body: JSON.stringify([{ id: cloudProjectId, data: state, updated_at: new Date().toISOString() }])
+        });
+        if (!res.ok) {
+          const payload = await res.json().catch(() => ({}));
+          throw new Error(payload.message || "온라인 저장에 실패했습니다.");
+        }
+        setSaveStatus(`온라인 저장됨 ${formatTime()}`);
+        if (showAlert) alert("온라인에 저장되었습니다.");
+      } catch (error) {
+        setSaveStatus("온라인 저장 오류");
+        if (showAlert) alert(`온라인 저장을 확인해 주세요.\n\n${error.message}`);
+      }
+    }
+
+    function snapshotForUndo() {
+      undoStack.push(JSON.stringify(state));
+      undoStack = undoStack.slice(-25);
+    }
+
+    function undoLast() {
+      const previous = undoStack.pop();
+      if (!previous) {
+        alert("되돌릴 이전 상태가 없습니다.");
+        return;
+      }
+      state = JSON.parse(previous);
+      setSaveStatus(`되돌림 ${formatTime()}`);
+      saveState(false);
+    }
+
+    function setView(id) {
+      currentView = id;
+      document.querySelectorAll(".view").forEach((el) => el.classList.toggle("active", el.id === id));
+      document.querySelectorAll(".navbtn").forEach((el) => el.classList.toggle("active", el.dataset.view === id));
+      document.getElementById("viewTitle").textContent = viewMeta[id][0];
+      document.getElementById("viewDesc").textContent = viewMeta[id][1];
+      render();
+    }
+
+    function renderNav() {
+      document.getElementById("nav").innerHTML = getNavItems().map(([id, label, count]) => `
+        <button class="navbtn ${id === currentView ? "active" : ""}" data-view="${id}" type="button" draggable="true">
+          <span><span class="drag-handle">⋮⋮</span>${label}</span><span class="count">${count}</span>
+        </button>
+      `).join("");
+      document.querySelectorAll(".navbtn").forEach((btn) => btn.addEventListener("click", () => setView(btn.dataset.view)));
+      document.querySelectorAll(".navbtn").forEach((btn) => {
+        btn.addEventListener("dragstart", (event) => {
+          btn.classList.add("dragging");
+          event.dataTransfer.setData("text/plain", btn.dataset.view);
+        });
+        btn.addEventListener("dragend", () => btn.classList.remove("dragging"));
+        btn.addEventListener("dragover", (event) => event.preventDefault());
+        btn.addEventListener("drop", (event) => {
+          event.preventDefault();
+          const from = event.dataTransfer.getData("text/plain");
+          const to = btn.dataset.view;
+          moveNavItem(from, to);
+        });
+      });
+    }
+
+    function moveNavItem(from, to) {
+      if (!from || !to || from === to) return;
+      const order = getNavItems().map(([id]) => id);
+      const fromIndex = order.indexOf(from);
+      const toIndex = order.indexOf(to);
+      if (fromIndex < 0 || toIndex < 0) return;
+      order.splice(fromIndex, 1);
+      order.splice(toIndex, 0, from);
+      state.navOrder = order;
+      saveState(false);
+    }
+
+    function metric(label, value, hint) {
+      return `<div class="card metric"><div class="label">${label}</div><div class="value">${value}</div><div class="hint">${hint}</div></div>`;
+    }
+
+    function centerNameDisplay() {
+      return esc(state.settings.centerName).replace("스콜라 몬테소리 ", "스콜라 몬테소리<br>");
+    }
+
+    function renderHome() {
+      const done = state.todos.filter((todo) => todo.done).length;
+      const financeTotal = state.finance.reduce((sum, item) => sum + num(item.amount), 0);
+      const timelineDone = completedTimelineTasks();
+      const timelineTotal = totalTimelineTasks();
+      document.getElementById("home").innerHTML = `
+        <div class="grid metrics">
+          ${metric("센터명", centerNameDisplay(), `유력 상가: ${state.settings.likelyProperty}`)}
+          ${metric("창업 진행률", `${projectProgress()}%`, `${done}/${state.todos.length}개 To-do 완료`)}
+          ${metric("오픈 타임라인", `${timelineOverallPercent()}%`, `${timelineDone}/${timelineTotal}개 세부항목 완료`)}
+          ${metric("잔금 D-Day", `D-${daysUntil(state.settings.balanceDate)}`, `가맹 잔금 ${money(62000000)}`)}
+          ${metric("예산 큰 그림", money(financeTotal), "가맹계약, 인테리어, 상가 보증금 포함")}
+        </div>
+        <div class="grid two" style="margin-top:14px;">
+          <div class="card">
+            <div class="section-head"><div><h3>오늘과 이번 주 해야 할 일</h3><p>오픈까지 필요한 실행 항목을 먼저 쌓아갑니다.</p></div><button type="button" onclick="setView('todo')">전체 보기</button></div>
+            <div class="todo-list">${state.todos.slice(0, 6).map(todoCard).join("")}</div>
+          </div>
+          <div class="card">
+            <div class="section-head"><div><h3>창업 타임라인</h3><p>현재 기준 핵심 일정입니다.</p></div><button type="button" onclick="setView('timeline')">관리</button></div>
+            <div class="timeline-overview">
+              <div class="donut" style="--p:${timelineOverallPercent()}"><span>${timelineOverallPercent()}%</span></div>
+              <div><strong>전체 오픈 준비 진행률</strong><p class="muted">${timelineDone}/${timelineTotal}개 세부항목 완료. 각 월별 항목을 체크하면 자동으로 반영됩니다.</p></div>
+            </div>
+            <div class="timeline">${state.timeline.map(milestoneCard).join("")}</div>
+          </div>
+        </div>
+        <div class="grid two" style="margin-top:14px;">
+          <div class="card">
+            <div class="section-head"><div><h3>최근 입력</h3><p>가장 최근 바꾼 항목을 자동으로 기록합니다.</p></div></div>
+            <div class="recent-list">${recentActivityHtml()}</div>
+          </div>
+          <div class="grid" style="gap:14px;">
+          <div class="card pad"><h3>아직 정해야 할 것</h3><p class="muted">회원 목표, 블로그/인스타 목표, 인테리어 지급 일정, 상가 계약 조건, 상담/체험수업 목표.</p></div>
+          <div class="card pad"><h3>7월 핵심 목표</h3><p class="muted">본계약 완료, 창업 OS 구축, 17개 센터 DB 입력 시작, 블로그 브랜드 확정, 자격증 2개 수강 시작, 교육도서 2권.</p></div>
+          <div class="card pad"><h3>내부 원칙</h3><p class="muted">자료를 모으는 것보다 “우리 센터에 적용할 점”까지 적는 것을 완료 기준으로 둡니다.</p></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function recentActivityHtml() {
+      const items = state.recentActivity || [];
+      if (!items.length) return `<div class="recent-item"><strong>아직 입력 기록 없음</strong><div class="todo-meta">값을 수정하면 여기에 자동으로 표시됩니다.</div></div>`;
+      return items.slice(0, 6).map((item) => `
+        <div class="recent-item">
+          <strong>${esc(item.area)} · ${esc(item.label)}</strong>
+          <div class="todo-meta">${formatTime(new Date(item.at))} · ${esc(item.value || "값 비움")}</div>
+        </div>
+      `).join("");
+    }
+
+    function todoCard(todo, idx) {
+      return `<div class="todo ${todo.done ? "done" : ""}">
+        <input type="checkbox" ${todo.done ? "checked" : ""} onchange="toggleTodo(${idx})">
+        <div><div class="todo-title">${esc(todo.title)}</div><div class="todo-meta">${esc(todo.area)} · ${esc(todo.due || "날짜 미정")}</div></div>
+        <span class="pill ${todo.priority === "상" ? "red" : todo.priority === "중" ? "amber" : "blue"}">${esc(todo.priority)}</span>
+      </div>`;
+    }
+
+    function milestoneCard(item) {
+      const pct = timelinePercent(item);
+      return `<div class="milestone">
+        <strong>${esc(item.month)}</strong>
+        <div><div style="font-weight:800">${esc(item.title)}</div><div class="todo-meta">${(item.tasks || []).filter((task) => task.done).length}/${(item.tasks || []).length}개 완료</div><div class="bar" style="margin-top:8px;"><span style="width:${pct}%"></span></div></div>
+        <span class="pill blue">${esc(item.due)}</span>
+      </div>`;
+    }
+
+    function simpleCell(collection, index, key, type = "text", options = null) {
+      const value = state[collection][index][key] ?? "";
+      if (options) {
+        return `<select class="auto-cell" style="--w:${inputWidth(value, 120, 220)}px" onchange="editCell('${collection}',${index},'${key}',this.value)">${["", ...options].map(opt => `<option value="${esc(opt)}" ${value === opt ? "selected" : ""}>${esc(opt || "선택")}</option>`).join("")}</select>`;
+      }
+      if (type === "textarea") return `<textarea class="auto-textarea" style="--w:${inputWidth(value, 320, 620)}px" oninput="autoGrow(this)" onchange="editCell('${collection}',${index},'${key}',this.value)">${esc(value)}</textarea>`;
+      return `<input class="auto-cell" style="--w:${inputWidth(value, type === "number" ? 110 : 160, type === "number" ? 180 : 520)}px" type="${type}" value="${esc(value)}" oninput="resizeInput(this)" onchange="editCell('${collection}',${index},'${key}',this.value)">`;
+    }
+
+    function inputWidth(value, min, max) {
+      const text = String(value ?? "");
+      const korean = (text.match(/[ㄱ-ㅎ가-힣]/g) || []).length;
+      const other = Math.max(0, text.length - korean);
+      const px = 34 + korean * 15 + other * 8;
+      return Math.max(min, Math.min(max, px));
+    }
+
+    function resizeInput(el) {
+      el.style.setProperty("--w", `${inputWidth(el.value, el.type === "number" ? 110 : 160, el.type === "number" ? 180 : 520)}px`);
+    }
+
+    function autoGrow(el) {
+      el.style.height = "auto";
+      el.style.height = `${Math.max(54, el.scrollHeight + 2)}px`;
+      el.style.setProperty("--w", `${inputWidth(el.value, 320, 620)}px`);
+    }
+
+    function hydrateAutosize(root = document) {
+      root.querySelectorAll("textarea.auto-textarea").forEach(autoGrow);
+      root.querySelectorAll("input.auto-cell").forEach(resizeInput);
+    }
+
+    function renderFranchises() {
+      document.getElementById("franchises").innerHTML = `
+        <div class="card">
+          <div class="section-head">
+            <div><h3>스콜라 가맹점 분석 시트</h3><p>점수보다 실제로 배울 점과 입지/콘텐츠 특성을 기록하는 DB입니다.</p></div>
+            <div class="toolbar">
+              <button type="button" onclick="deleteSelectedRows('franchises')">선택삭제</button>
+              <button type="button" onclick="deleteAllRows('franchises')">전체삭제</button>
+            </div>
+          </div>
+          <div class="table-wrap"><table class="franchise-table">
+            <thead><tr>
+              <th>선택</th><th>이동</th><th>No</th><th>가맹점</th><th>주소</th><th>전화</th><th>인스타</th><th>블로그</th><th>홈페이지</th><th>네이버 리뷰</th><th>카카오 리뷰</th><th>네이버 저장</th><th>팔로워</th><th>게시물</th>
+              <th>소아과</th><th>카페</th><th>키즈카페</th><th>유치원/어린이집</th><th>건물 층수</th><th>센터 위치</th><th>주차</th><th>엘리베이터</th>
+              <th>인근 5세이하 인구</th><th>배후 초등학교</th><th>배후 유치원</th><th>학원 밀집도</th><th>상권 형태</th><th>월세</th>
+              <th>원장 경력</th><th>블로그 운영</th><th>인스타 운영</th><th>후기 게시글</th><th>부모교육 콘텐츠</th><th>체험수업 홍보</th><th>회원모집 방식</th>
+              <th>차별화 포인트</th><th>왜 잘 되는가</th><th>왜 아쉬운가</th><th>내가 배울 점</th><th>약점</th><th>메모</th>
+            </tr></thead>
+            <tbody>${state.franchises.map((row, i) => `
+              <tr draggable="true" ondragstart="startRowDrag(event, 'franchises', ${i})" ondragover="allowDrop(event)" ondrop="dropRow(event, 'franchises', ${i})" ondragend="endDrag(event)">
+                <td class="select-cell"><input type="checkbox" class="row-select" data-collection="franchises" data-index="${i}"></td><td class="drag-cell" title="드래그해서 순서 변경">⋮⋮</td>
+                <td class="num">${row.no}</td><td><span class="branch-title">${esc(row.name)}</span><span class="branch-sub">${esc(row.region)} ${esc(row.city)}</span></td><td><span class="address-text">${esc(row.address)}</span></td><td><span class="phone-text">${esc(row.phone)}</span></td>
+                <td>${simpleCell("franchises", i, "instagramUrl")}</td><td>${simpleCell("franchises", i, "blogUrl")}</td><td>${simpleCell("franchises", i, "homepage")}</td><td>${simpleCell("franchises", i, "naverReviews", "number")}</td><td>${simpleCell("franchises", i, "kakaoReviews", "number")}</td><td>${simpleCell("franchises", i, "naverSaves", "number")}</td><td>${simpleCell("franchises", i, "followers", "number")}</td><td>${simpleCell("franchises", i, "instagramPosts", "number")}</td>
+                <td>${simpleCell("franchises", i, "pediatric", "text", ["O", "X"])}</td>
+                <td>${simpleCell("franchises", i, "cafe", "text", ["O", "X"])}</td><td>${simpleCell("franchises", i, "kidsCafe", "text", ["O", "X"])}</td><td>${simpleCell("franchises", i, "kindergarten", "text", ["O", "X"])}</td>
+                <td>${simpleCell("franchises", i, "buildingFloors")}</td><td>${simpleCell("franchises", i, "centerFloorType", "text", ["1층", "2층", "고층"])}</td><td>${simpleCell("franchises", i, "parkingSpaces", "number")}</td><td>${simpleCell("franchises", i, "elevator", "text", ["O", "X"])}</td>
+                <td>${simpleCell("franchises", i, "under5Population", "number")}</td><td>${simpleCell("franchises", i, "elementary")}</td><td>${simpleCell("franchises", i, "kindergartenBack")}</td><td>${simpleCell("franchises", i, "academyDensity", "text", ["상", "중", "하"])}</td><td>${simpleCell("franchises", i, "tradeAreaType", "text", ["단지내", "복합상가", "역세권", "주거밀집"])}</td>
+                <td>${simpleCell("franchises", i, "rent", "number")}</td><td>${simpleCell("franchises", i, "directorCareer")}</td>
+                <td>${simpleCell("franchises", i, "blogActivity", "text", ["적극", "보통", "없음"])}</td><td>${simpleCell("franchises", i, "instagramActivity", "text", ["적극", "보통", "없음"])}</td><td>${simpleCell("franchises", i, "reviewPosts", "number")}</td>
+                <td>${simpleCell("franchises", i, "parentContent", "text", ["O", "X"])}</td><td>${simpleCell("franchises", i, "trialPromotion", "text", ["O", "X"])}</td><td>${simpleCell("franchises", i, "recruitingMethod", "textarea")}</td>
+                <td>${simpleCell("franchises", i, "differentiation", "textarea")}</td><td>${simpleCell("franchises", i, "whyWorks", "textarea")}</td><td>${simpleCell("franchises", i, "whyWeak", "textarea")}</td><td>${simpleCell("franchises", i, "learnings", "textarea")}</td><td>${simpleCell("franchises", i, "weakness", "textarea")}</td><td>${simpleCell("franchises", i, "memo", "textarea")}</td>
+              </tr>`).join("")}</tbody>
+          </table></div>
+        </div>`;
+    }
+
+    function renderGenericTable(viewId, collection, columns, addFactory) {
+      document.getElementById(viewId).innerHTML = `
+        <div class="card">
+          <div class="section-head">
+            <div><h3>${viewMeta[viewId][0]}</h3><p>${viewMeta[viewId][1]}</p></div>
+            <div class="toolbar">
+              <button type="button" onclick="addRow('${collection}')">추가</button>
+              <button type="button" onclick="deleteSelectedRows('${collection}')">선택삭제</button>
+              <button type="button" onclick="deleteAllRows('${collection}')">전체삭제</button>
+            </div>
+          </div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>선택</th><th>이동</th>${columns.map(col => `<th>${col.label}</th>`).join("")}<th>삭제</th></tr></thead>
+            <tbody>${state[collection].map((row, i) => `<tr draggable="true" ondragstart="startRowDrag(event, '${collection}', ${i})" ondragover="allowDrop(event)" ondrop="dropRow(event, '${collection}', ${i})" ondragend="endDrag(event)"><td class="select-cell"><input type="checkbox" class="row-select" data-collection="${collection}" data-index="${i}"></td><td class="drag-cell" title="드래그해서 순서 변경">⋮⋮</td>${columns.map(col => {
+              if (col.render) return `<td>${col.render(row, i)}</td>`;
+              return `<td>${simpleCell(collection, i, col.key, col.type || "text", col.options || null)}</td>`;
+            }).join("")}<td><button type="button" onclick="deleteRow('${collection}',${i})">삭제</button></td></tr>`).join("")}</tbody>
+          </table></div>
+        </div>`;
+      window[`factory_${collection}`] = addFactory;
+    }
+
+    function renderTimeline() {
+      const overall = timelineOverallPercent();
+      document.getElementById("timeline").innerHTML = `
+        <div class="card">
+          <div class="section-head">
+            <div><h3>오픈 타임라인</h3><p>각 월별 세부항목을 체크하면 월별/전체 진행률이 자동 계산됩니다.</p></div>
+            <button type="button" onclick="addTimelineMonth()">월 추가</button>
+          </div>
+          <div class="timeline-overview">
+            <div class="donut" style="--p:${overall}"><span>${overall}%</span></div>
+            <div>
+              <strong>전체 진행률</strong>
+              <p class="muted">${completedTimelineTasks()}/${totalTimelineTasks()}개 세부항목 완료. 진행률은 입력값이 아니라 체크된 항목 수로 계산됩니다.</p>
+            </div>
+          </div>
+          <div class="timeline">${state.timeline.map((item, i) => timelineEditor(item, i)).join("")}</div>
+        </div>`;
+    }
+
+    function timelineEditor(item, i) {
+      const pct = timelinePercent(item);
+      return `<details class="milestone" open draggable="true" ondragstart="startTimelineMonthDrag(event, ${i})" ondragover="allowDrop(event)" ondrop="dropTimelineMonth(event, ${i})" ondragend="endDrag(event)">
+        <summary style="display:contents; cursor:pointer;">
+          <strong><span class="drag-cell" title="드래그해서 순서 변경">⋮⋮</span>${esc(item.month)}</strong>
+          <div>
+            <input value="${esc(item.title)}" onchange="editTimeline(${i}, 'title', this.value)" style="font-weight:800;">
+            <div class="bar" style="margin-top:8px;"><span style="width:${pct}%"></span></div>
+            <div class="todo-meta">${(item.tasks || []).filter((task) => task.done).length}/${(item.tasks || []).length}개 완료</div>
+          </div>
+          <span class="pill blue">${pct}%</span>
+        </summary>
+        <div style="grid-column:1 / -1; padding-top:10px;">
+          <div class="form-grid" style="padding:0; border:0; background:transparent; grid-template-columns:120px 180px minmax(240px,1fr) auto;">
+            <label>월<input value="${esc(item.month)}" onchange="editTimeline(${i}, 'month', this.value)"></label>
+            <label>마감<input type="date" value="${esc(item.due)}" onchange="editTimeline(${i}, 'due', this.value)"></label>
+            <label>메모<input value="${esc(item.memo || "")}" onchange="editTimeline(${i}, 'memo', this.value)"></label>
+            <label>&nbsp;<button type="button" onclick="deleteTimelineMonth(${i})">월 삭제</button></label>
+          </div>
+          <div class="task-list">${(item.tasks || []).map((task, j) => `
+            <div class="task-row" draggable="true" ondragstart="startTimelineTaskDrag(event, ${i}, ${j})" ondragover="allowDrop(event)" ondrop="dropTimelineTask(event, ${i}, ${j})" ondragend="endDrag(event)">
+              <input type="checkbox" ${task.done ? "checked" : ""} onchange="toggleTimelineTask(${i}, ${j})">
+              <span class="drag-cell" title="드래그해서 순서 변경">⋮⋮</span>
+              <input type="text" value="${esc(task.text)}" onchange="editTimelineTask(${i}, ${j}, this.value)">
+              <button class="mini-btn" type="button" onclick="deleteTimelineTask(${i}, ${j})">삭제</button>
+            </div>
+          `).join("")}</div>
+          <button type="button" style="margin-top:10px;" onclick="addTimelineTask(${i})">세부항목 추가</button>
+        </div>
+      </details>`;
+    }
+
+    function renderFinance() {
+      const total = state.finance.reduce((sum, row) => sum + num(row.amount), 0);
+      document.getElementById("finance").innerHTML = `<div class="grid metrics">
+        ${metric("총 예정 금액", money(total), "입력된 항목 합계")}
+        ${metric("가맹 계약금", money(35000000), "2026-07-13 예정")}
+        ${metric("가맹 잔금", money(62000000), "2026-09-28 예정")}
+        ${metric("인테리어 예산", money(80000000), "세부 지급일 미정")}
+        ${metric("상가 보증금", money(30000000), "최소 기준")}
+      </div><div style="margin-top:14px" id="financeTable"></div>`;
+      const holder = document.createElement("section");
+      holder.id = "financeTableView";
+      document.getElementById("financeTable").appendChild(holder);
+      viewMeta.financeTableView = ["자금 상세", "계약금, 잔금, 인테리어, 보증금, 예비비를 관리합니다."];
+      renderGenericTable("financeTableView", "finance", [
+        { label: "구분", key: "category" }, { label: "항목", key: "item" }, { label: "지급일", key: "due", type: "date" }, { label: "금액", key: "amount", type: "number" },
+        { label: "상태", key: "status", options: ["예정", "완료", "미정", "최소 기준"] }, { label: "메모", key: "memo", type: "textarea" }
+      ], () => ({ category: "", item: "", due: "", amount: 0, status: "미정", memo: "" }));
+    }
+
+    function renderKpi() {
+      const conversion = num(state.kpi.trials) ? Math.round(num(state.kpi.registrations) / num(state.kpi.trials) * 100) : 0;
+      document.getElementById("kpi").innerHTML = `
+        <div class="grid metrics">
+          ${metric("회원", `${num(state.kpi.members)}명`, `목표 ${state.settings.targetMembers || "미정"}`)}
+          ${metric("이번달 상담", `${num(state.kpi.consultations)}건`, "오픈 전 문의까지 포함")}
+          ${metric("체험수업", `${num(state.kpi.trials)}건`, "월 목표 추후 설정")}
+          ${metric("등록률", `${conversion}%`, "등록 ÷ 체험")}
+          ${metric("매출/순이익", `${money(state.kpi.revenue)} / ${money(state.kpi.profit)}`, "오픈 후 대표 숫자")}
+        </div>
+        <div class="card" style="margin-top:14px;">
+          <div class="section-head"><div><h3>동탄100 프로젝트</h3><p>아직 목표가 불확실한 항목은 비워두고, 감이 생기면 채우면 됩니다.</p></div></div>
+          <div class="form-grid">
+            ${settingInput("targetMembers", "회원 목표")}
+            ${settingInput("targetBlogPosts", "블로그 목표")}
+            ${settingInput("targetFollowers", "인스타 팔로워 목표")}
+            ${settingInput("targetReviews", "리뷰 목표")}
+            ${kpiInput("members", "현재 회원")}
+            ${kpiInput("consultations", "이번달 상담")}
+            ${kpiInput("trials", "체험수업")}
+            ${kpiInput("registrations", "등록")}
+            ${kpiInput("revenue", "매출")}
+            ${kpiInput("profit", "순이익")}
+            ${kpiInput("blogPosts", "블로그 글")}
+            ${kpiInput("followers", "인스타 팔로워")}
+            ${kpiInput("reviews", "리뷰")}
+          </div>
+        </div>`;
+    }
+
+    function settingInput(key, label) {
+      return `<label>${label}<input type="number" value="${esc(state.settings[key])}" onchange="editSetting('${key}', this.value)"></label>`;
+    }
+
+    function kpiInput(key, label) {
+      return `<label>${label}<input type="number" value="${esc(state.kpi[key])}" onchange="editKpi('${key}', this.value)"></label>`;
+    }
+
+    function renderLocation() {
+      document.getElementById("location").innerHTML = `
+        <div class="card">
+          <div class="section-head"><div><h3>동탄 입지 분석</h3><p>상가 후보 하나하나가 아니라, 동탄호수공원 상권 자체가 우리 센터에 맞는지 판단하는 페이지입니다.</p></div></div>
+          <div class="form-grid">
+            <label>센터명<input value="${esc(state.settings.centerName)}" onchange="editSetting('centerName', this.value)"></label>
+            <label>유력 상가<input value="${esc(state.settings.likelyProperty)}" onchange="editSetting('likelyProperty', this.value)"></label>
+            <label>가맹 계약일<input type="date" value="${esc(state.settings.contractDate)}" onchange="editSetting('contractDate', this.value)"></label>
+            <label>잔금일<input type="date" value="${esc(state.settings.balanceDate)}" onchange="editSetting('balanceDate', this.value)"></label>
+            <label>목표 오픈일<input type="date" value="${esc(state.settings.targetOpenDate)}" onchange="editSetting('targetOpenDate', this.value)"></label>
+          </div>
+          <div class="grid three" style="padding:16px;">
+            <div class="card pad"><h3>무엇을 보는가</h3><p class="muted">동탄 입지 분석은 “그 상가가 좋은가”보다 한 단계 위에서, 호수공원 생활권에 영유아 학부모 수요가 충분한지 보는 공간입니다.</p></div>
+            <div class="card pad"><h3>확인할 상권 질문</h3><p class="muted">호수공원 유입, 주차 회전, 주말 동선, 소아과/카페/학원 시너지, 대단지 접근성, 인근 5세이하 인구를 확인합니다.</p></div>
+            <div class="card pad"><h3>그랑파사쥬 체크</h3><p class="muted">4~5층, 30평 초반, 월세 100만원 후반~200만원 초반을 기준선으로 봅니다. 보증금, 관리비, 무료주차, 엘리베이터, 유모차 이동, 같은 층 업종, 간판 노출까지 확인합니다.</p></div>
+            <div class="card pad"><h3>판단 기준</h3><p class="muted">좋은 상가는 예쁜 상가가 아니라 학부모가 매주 오기 쉬운 상가입니다.</p></div>
+          </div>
+        </div>`;
+    }
+
+    function checklistProgress() {
+      const items = (state.contractChecklist || []).flatMap((group) => group.items || []);
+      if (!items.length) return { done: 0, total: 0, percent: 0 };
+      const done = items.filter((item) => item.done).length;
+      return { done, total: items.length, percent: Math.round(done / items.length * 100) };
+    }
+
+    function renderContractChecklist() {
+      const progress = checklistProgress();
+      document.getElementById("contractChecklist").innerHTML = `
+        <div class="card">
+          <div class="section-head">
+            <div><h3>스콜라 몬테소리 본계약 체크리스트</h3><p>2026.07.12 기준. 대표님께 질문할 것과 요청할 서류를 체크합니다.</p></div>
+          </div>
+          <div class="timeline-overview">
+            <div class="donut" style="--p:${progress.percent}"><span>${progress.percent}%</span></div>
+            <div><strong>계약 체크 진행률</strong><p class="muted">${progress.done}/${progress.total}개 확인 완료. 체크하면 자동저장되고 HOME의 최근 입력에도 기록됩니다.</p></div>
+          </div>
+          <div class="checklist-section">${(state.contractChecklist || []).map((group, i) => contractGroupHtml(group, i)).join("")}</div>
+        </div>`;
+    }
+
+    function contractGroupHtml(group, i) {
+      const total = (group.items || []).length;
+      const done = (group.items || []).filter((item) => item.done).length;
+      return `<details class="check-group" open draggable="true" ondragstart="startContractGroupDrag(event, ${i})" ondragover="allowDrop(event)" ondrop="dropContractGroup(event, ${i})" ondragend="endDrag(event)">
+        <summary><span><span class="drag-cell" title="드래그해서 순서 변경">⋮⋮</span>${esc(group.group)}</span><span class="pill blue">${done}/${total}</span></summary>
+        <div class="check-items">${(group.items || []).map((item, j) => `
+          <label class="check-item" draggable="true" ondragstart="startContractItemDrag(event, ${i}, ${j})" ondragover="allowDrop(event)" ondrop="dropContractItem(event, ${i}, ${j})" ondragend="endDrag(event)">
+            <span class="drag-cell" title="드래그해서 순서 변경">⋮⋮</span>
+            <input type="checkbox" ${item.done ? "checked" : ""} onchange="toggleContractCheck(${i}, ${j})">
+            <span>${esc(item.text)}</span>
+          </label>
+        `).join("")}</div>
+        <div class="group-memo">
+          <label class="muted">대항목 메모</label>
+          <textarea class="auto-textarea" style="--w:${inputWidth(group.memo || "", 420, 720)}px" oninput="autoGrow(this)" onchange="editContractGroupMemo(${i}, this.value)">${esc(group.memo || "")}</textarea>
+        </div>
+      </details>`;
+    }
+
+    function render() {
+      renderNav();
+      if (currentView === "home") renderHome();
+      if (currentView === "franchises") renderFranchises();
+      if (currentView === "competitors") renderGenericTable("competitors", "competitors", [
+        { label: "센터명", key: "name" }, { label: "지역", key: "region" }, { label: "주소", key: "address" }, { label: "홈페이지", key: "url" }, { label: "인스타", key: "instagram" }, { label: "블로그", key: "blog" },
+        { label: "가격", key: "price" }, { label: "리뷰", key: "reviews" }, { label: "보증금", key: "deposit", type: "number" }, { label: "월세", key: "rent", type: "number" }, { label: "평수", key: "areaSize" },
+        { label: "층", key: "floor" }, { label: "주차", key: "parking" }, { label: "소아과", key: "pediatric", options: ["O", "X"] }, { label: "카페", key: "cafe", options: ["O", "X"] },
+        { label: "엘리베이터", key: "elevator", options: ["O", "X"] }, { label: "차별점", key: "differentiation", type: "textarea" }, { label: "따라할 점", key: "copyPoint", type: "textarea" },
+        { label: "약점", key: "weakness", type: "textarea" }, { label: "협상/문의", key: "negotiation", type: "textarea" }, { label: "리스크", key: "risk", type: "textarea" }, { label: "메모", key: "memo", type: "textarea" }
+      ], () => ({ name: "", region: "", address: "", url: "", instagram: "", blog: "", price: "", reviews: "", deposit: "", rent: "", areaSize: "", floor: "", parking: "", pediatric: "", cafe: "", elevator: "", differentiation: "", copyPoint: "", weakness: "", negotiation: "", risk: "", memo: "" }));
+      if (currentView === "properties") renderGenericTable("properties", "properties", [
+        { label: "상가명", key: "name" }, { label: "지역", key: "area" }, { label: "네이버부동산 링크", key: "naverRealEstateUrl" }, { label: "보증금", key: "deposit", type: "number" }, { label: "월세", key: "rent", type: "number" }, { label: "평수", key: "areaSize" },
+        { label: "층", key: "floor" }, { label: "주차", key: "parking" }, { label: "소아과", key: "pediatric", options: ["O", "X"] }, { label: "카페", key: "cafe", options: ["O", "X"] },
+        { label: "엘리베이터", key: "elevator", options: ["O", "X"] }, { label: "진행상황", key: "status" }, { label: "협상내용", key: "negotiation", type: "textarea" }, { label: "리스크", key: "risk", type: "textarea" }, { label: "점수", key: "score", type: "number" }, { label: "메모", key: "memo", type: "textarea" }
+      ], () => ({ name: "", area: "", naverRealEstateUrl: "", deposit: 0, rent: "", areaSize: "", floor: "", parking: "", pediatric: "", cafe: "", elevator: "", status: "후보", negotiation: "", risk: "", score: 0, memo: "" }));
+      if (currentView === "location") renderLocation();
+      if (currentView === "timeline") renderTimeline();
+      if (currentView === "finance") renderFinance();
+      if (currentView === "content") renderGenericTable("content", "contentIdeas", [
+        { label: "글감/콘텐츠", key: "title" }, { label: "채널", key: "channel", options: ["블로그", "인스타", "릴스", "후기"] }, { label: "단계", key: "stage" }, { label: "마감", key: "due", type: "date" }, { label: "상태", key: "status", options: ["대기", "작성중", "완료"] }, { label: "메모", key: "memo", type: "textarea" }
+      ], () => ({ title: "", channel: "블로그", stage: "글감", due: "", status: "대기", memo: "" }));
+      if (currentView === "learning") renderGenericTable("learning", "learning", [
+        { label: "제목", key: "title" }, { label: "유형", key: "type", options: ["자격증", "책", "강의", "교구", "논문", "영상"] }, { label: "진행률", key: "progress", type: "number" }, { label: "상태", key: "status" }, { label: "메모", key: "memo", type: "textarea" }
+      ], () => ({ title: "", type: "책", progress: 0, status: "시작 전", memo: "" }));
+      if (currentView === "kpi") renderKpi();
+      if (currentView === "journal") renderGenericTable("journal", "journal", [
+        { label: "날짜", key: "date", type: "date" }, { label: "주제", key: "topic" }, { label: "유형", key: "type", options: ["결정", "상담", "조사", "불안요소", "배운 점"] }, { label: "기록", key: "note", type: "textarea" }, { label: "다음 액션", key: "next", type: "textarea" }
+      ], () => ({ date: new Date().toISOString().slice(0, 10), topic: "", type: "조사", note: "", next: "" }));
+      if (currentView === "todo") renderGenericTable("todo", "todos", [
+        { label: "완료", render: (row, i) => `<input type="checkbox" ${row.done ? "checked" : ""} onchange="editCell('todos',${i},'done',this.checked)">` },
+        { label: "할 일", key: "title" }, { label: "영역", key: "area" }, { label: "마감", key: "due", type: "date" }, { label: "우선순위", key: "priority", options: ["상", "중", "하"] }
+      ], () => ({ title: "", area: "기타", due: "", priority: "중", done: false }));
+      if (currentView === "contractChecklist") renderContractChecklist();
+      hydrateAutosize();
+    }
+
+    function editCell(collection, index, key, value) {
+      snapshotForUndo();
+      state[collection][index][key] = value;
+      recordActivity(collectionName(collection), `${rowName(collection, index)} · ${key}`, value);
+      saveState(false);
+    }
+
+    function editSetting(key, value) {
+      snapshotForUndo();
+      state.settings[key] = value;
+      recordActivity("설정", key, value);
+      saveState(false);
+    }
+
+    function editKpi(key, value) {
+      snapshotForUndo();
+      state.kpi[key] = Number(value || 0);
+      recordActivity("KPI", key, value);
+      saveState(false);
+    }
+
+    function toggleTodo(index) {
+      snapshotForUndo();
+      state.todos[index].done = !state.todos[index].done;
+      recordActivity("To-do", state.todos[index].title, state.todos[index].done ? "완료" : "미완료");
+      saveState(false);
+    }
+
+    function addRow(collection) {
+      snapshotForUndo();
+      const factory = window[`factory_${collection}`];
+      state[collection].push(factory ? factory() : {});
+      recordActivity(collectionName(collection), "행 추가", "새 항목");
+      saveState(false);
+    }
+
+    function deleteRow(collection, index) {
+      if (!confirm("이 행을 삭제할까요?")) return;
+      snapshotForUndo();
+      recordActivity(collectionName(collection), "행 삭제", rowName(collection, index));
+      state[collection].splice(index, 1);
+      saveState(false);
+    }
+
+    function selectedIndexes(collection) {
+      return Array.from(document.querySelectorAll(`.row-select[data-collection="${collection}"]:checked`))
+        .map((el) => Number(el.dataset.index))
+        .filter((index) => Number.isInteger(index))
+        .sort((a, b) => b - a);
+    }
+
+    function deleteSelectedRows(collection) {
+      const indexes = selectedIndexes(collection);
+      if (!indexes.length) {
+        alert("삭제할 항목을 선택해 주세요.");
+        return;
+      }
+      if (!confirm(`${indexes.length}개 항목을 삭제할까요?`)) return;
+      snapshotForUndo();
+      indexes.forEach((index) => state[collection].splice(index, 1));
+      recordActivity(collectionName(collection), "선택삭제", `${indexes.length}개 항목`);
+      saveState(false);
+    }
+
+    function deleteAllRows(collection) {
+      if (!state[collection]?.length) return;
+      if (!confirm(`${collectionName(collection)}의 모든 항목을 삭제할까요?`)) return;
+      snapshotForUndo();
+      const count = state[collection].length;
+      state[collection] = [];
+      recordActivity(collectionName(collection), "전체삭제", `${count}개 항목`);
+      saveState(false);
+    }
+
+    function allowDrop(event) {
+      event.preventDefault();
+    }
+
+    function endDrag(event) {
+      event.currentTarget?.classList?.remove("dragging");
+      dragState = null;
+    }
+
+    function moveArrayItem(array, from, to) {
+      if (!array || from === to || from < 0 || to < 0 || from >= array.length || to >= array.length) return null;
+      const [item] = array.splice(from, 1);
+      array.splice(to, 0, item);
+      return item;
+    }
+
+    function startRowDrag(event, collection, index) {
+      dragState = { type: "row", collection, index };
+      event.currentTarget.classList.add("dragging");
+      event.dataTransfer.effectAllowed = "move";
+    }
+
+    function dropRow(event, collection, targetIndex) {
+      event.preventDefault();
+      if (!dragState || dragState.type !== "row" || dragState.collection !== collection) return;
+      snapshotForUndo();
+      const item = moveArrayItem(state[collection], dragState.index, targetIndex);
+      if (item) recordActivity(collectionName(collection), "순서 변경", item.name || item.title || item.item || item.topic || "항목");
+      dragState = null;
+      saveState(false);
+    }
+
+    function startTimelineMonthDrag(event, index) {
+      dragState = { type: "timelineMonth", index };
+      event.currentTarget.classList.add("dragging");
+      event.dataTransfer.effectAllowed = "move";
+    }
+
+    function dropTimelineMonth(event, targetIndex) {
+      event.preventDefault();
+      if (!dragState || dragState.type !== "timelineMonth") return;
+      snapshotForUndo();
+      const item = moveArrayItem(state.timeline, dragState.index, targetIndex);
+      if (item) recordActivity("오픈 타임라인", "월 순서 변경", item.title);
+      dragState = null;
+      saveState(false);
+    }
+
+    function startTimelineTaskDrag(event, monthIndex, taskIndex) {
+      event.stopPropagation();
+      dragState = { type: "timelineTask", monthIndex, taskIndex };
+      event.currentTarget.classList.add("dragging");
+      event.dataTransfer.effectAllowed = "move";
+    }
+
+    function dropTimelineTask(event, monthIndex, targetTaskIndex) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (!dragState || dragState.type !== "timelineTask" || dragState.monthIndex !== monthIndex) return;
+      snapshotForUndo();
+      const tasks = state.timeline[monthIndex].tasks || [];
+      const item = moveArrayItem(tasks, dragState.taskIndex, targetTaskIndex);
+      if (item) recordActivity("오픈 타임라인", "세부항목 순서 변경", item.text);
+      dragState = null;
+      saveState(false);
+    }
+
+    function startContractGroupDrag(event, index) {
+      dragState = { type: "contractGroup", index };
+      event.currentTarget.classList.add("dragging");
+      event.dataTransfer.effectAllowed = "move";
+    }
+
+    function dropContractGroup(event, targetIndex) {
+      event.preventDefault();
+      if (!dragState || dragState.type !== "contractGroup") return;
+      snapshotForUndo();
+      const item = moveArrayItem(state.contractChecklist, dragState.index, targetIndex);
+      if (item) recordActivity("계약시 체크리스트", "대항목 순서 변경", item.group);
+      dragState = null;
+      saveState(false);
+    }
+
+    function startContractItemDrag(event, groupIndex, itemIndex) {
+      event.stopPropagation();
+      dragState = { type: "contractItem", groupIndex, itemIndex };
+      event.currentTarget.classList.add("dragging");
+      event.dataTransfer.effectAllowed = "move";
+    }
+
+    function dropContractItem(event, groupIndex, targetItemIndex) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (!dragState || dragState.type !== "contractItem" || dragState.groupIndex !== groupIndex) return;
+      snapshotForUndo();
+      const items = state.contractChecklist[groupIndex].items || [];
+      const item = moveArrayItem(items, dragState.itemIndex, targetItemIndex);
+      if (item) recordActivity("계약시 체크리스트", "체크항목 순서 변경", item.text);
+      dragState = null;
+      saveState(false);
+    }
+
+    function collectionName(collection) {
+      return ({
+        franchises: "가맹점 DB",
+        competitors: "경쟁센터 DB",
+        properties: "상가 후보 DB",
+        finance: "자금 관리",
+        contentIdeas: "블로그·인스타",
+        learning: "교육 공부",
+        journal: "창업일지",
+        todos: "To-do",
+        timeline: "오픈 타임라인"
+      })[collection] || collection;
+    }
+
+    function rowName(collection, index) {
+      const row = state[collection]?.[index];
+      return row?.name || row?.title || row?.item || row?.topic || row?.month || `${index + 1}행`;
+    }
+
+    function editTimeline(index, key, value) {
+      snapshotForUndo();
+      state.timeline[index][key] = value;
+      recordActivity("오픈 타임라인", `${state.timeline[index].month} · ${key}`, value);
+      saveState(false);
+    }
+
+    function addTimelineMonth() {
+      snapshotForUndo();
+      state.timeline.push({ month: "", title: "새 월간 목표", due: "", memo: "", tasks: [] });
+      recordActivity("오픈 타임라인", "월 추가", "새 월간 목표");
+      saveState(false);
+    }
+
+    function deleteTimelineMonth(index) {
+      if (!confirm("이 월간 타임라인을 삭제할까요?")) return;
+      snapshotForUndo();
+      recordActivity("오픈 타임라인", "월 삭제", state.timeline[index].title);
+      state.timeline.splice(index, 1);
+      saveState(false);
+    }
+
+    function addTimelineTask(index) {
+      snapshotForUndo();
+      state.timeline[index].tasks = state.timeline[index].tasks || [];
+      state.timeline[index].tasks.push({ text: "새 세부항목", done: false });
+      recordActivity("오픈 타임라인", `${state.timeline[index].month} 세부항목 추가`, "새 세부항목");
+      saveState(false);
+    }
+
+    function editTimelineTask(index, taskIndex, value) {
+      snapshotForUndo();
+      state.timeline[index].tasks[taskIndex].text = value;
+      recordActivity("오픈 타임라인", `${state.timeline[index].month} 세부항목`, value);
+      saveState(false);
+    }
+
+    function toggleTimelineTask(index, taskIndex) {
+      snapshotForUndo();
+      const task = state.timeline[index].tasks[taskIndex];
+      task.done = !task.done;
+      recordActivity("오픈 타임라인", `${state.timeline[index].month} · ${task.text}`, task.done ? "완료" : "미완료");
+      saveState(false);
+    }
+
+    function deleteTimelineTask(index, taskIndex) {
+      snapshotForUndo();
+      recordActivity("오픈 타임라인", "세부항목 삭제", state.timeline[index].tasks[taskIndex].text);
+      state.timeline[index].tasks.splice(taskIndex, 1);
+      saveState(false);
+    }
+
+    function editContractGroupMemo(groupIndex, value) {
+      snapshotForUndo();
+      state.contractChecklist[groupIndex].memo = value;
+      recordActivity("계약시 체크리스트", `${state.contractChecklist[groupIndex].group} 메모`, value);
+      saveState(false);
+    }
+
+    function toggleContractCheck(groupIndex, itemIndex) {
+      snapshotForUndo();
+      const item = state.contractChecklist[groupIndex].items[itemIndex];
+      item.done = !item.done;
+      recordActivity("계약시 체크리스트", `${state.contractChecklist[groupIndex].group} · ${item.text}`, item.done ? "완료" : "미완료");
+      saveState(false);
+    }
+
+    document.getElementById("saveBtn").addEventListener("click", () => saveState(true));
+    document.getElementById("undoBtn").addEventListener("click", undoLast);
+    document.getElementById("reloadCloudBtn").addEventListener("click", () => loadCloudState());
+    document.getElementById("logoutBtn").addEventListener("click", signOut);
+    document.getElementById("loginForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
+      try {
+        await signIn(email, password);
+      } catch (error) {
+        setAuthMessage(error.message || "로그인에 실패했습니다.");
+      }
+    });
+    document.getElementById("exportBtn").addEventListener("click", () => {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "project-mont-ceo-os-backup.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+    document.getElementById("importFile").addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          snapshotForUndo();
+          state = mergeDeep(clone(defaults), JSON.parse(reader.result));
+          saveState(false);
+        } catch {
+          alert("복원 파일을 읽지 못했습니다.");
+        }
+      };
+      reader.readAsText(file);
+    });
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      if (!confirm("모든 입력값을 초기 상태로 되돌릴까요?")) return;
+      snapshotForUndo();
+      state = clone(defaults);
+      localStorage.removeItem(storageKey);
+      saveState(false);
+    });
+
+    updateAuthUi();
+    render();
+    if (authSession) loadCloudState();
+  </script>
+</body>
+</html>
