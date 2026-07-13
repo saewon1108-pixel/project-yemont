@@ -1153,6 +1153,7 @@
     let authSession = loadAuthSession();
     let cloudSaveTimer = null;
     let isCloudLoading = false;
+    const scrollMemory = {};
 
     function clone(value) {
       return JSON.parse(JSON.stringify(value));
@@ -1247,6 +1248,34 @@
         { at: new Date().toISOString(), area, label, value: String(value ?? "").slice(0, 80) },
         ...(state.recentActivity || [])
       ].slice(0, 12);
+    }
+
+    function scrollTargets(viewId = currentView) {
+      const view = document.getElementById(viewId);
+      if (!view) return [];
+      return Array.from(view.querySelectorAll(".table-wrap, .timeline, .checklist-section, .todo-list, .recent-list"));
+    }
+
+    function captureScroll(viewId = currentView) {
+      const targets = scrollTargets(viewId);
+      if (!targets.length) return;
+      scrollMemory[viewId] = targets.map((el) => ({
+        left: el.scrollLeft,
+        top: el.scrollTop
+      }));
+    }
+
+    function restoreScroll(viewId = currentView) {
+      const positions = scrollMemory[viewId];
+      if (!positions) return;
+      requestAnimationFrame(() => {
+        scrollTargets(viewId).forEach((el, index) => {
+          const pos = positions[index];
+          if (!pos) return;
+          el.scrollLeft = pos.left || 0;
+          el.scrollTop = pos.top || 0;
+        });
+      });
     }
 
     function saveState(showAlert = true, rerender = true) {
@@ -1842,6 +1871,7 @@
     }
 
     function render() {
+      captureScroll();
       renderNav();
       if (currentView === "home") renderHome();
       if (currentView === "franchises") renderFranchises();
@@ -1876,6 +1906,7 @@
       ], () => ({ title: "", area: "기타", due: "", priority: "중", done: false }));
       if (currentView === "contractChecklist") renderContractChecklist();
       hydrateAutosize();
+      restoreScroll();
     }
 
     function editCell(collection, index, key, value) {
