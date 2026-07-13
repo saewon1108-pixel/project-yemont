@@ -653,6 +653,31 @@
       margin-top: 10px;
     }
 
+    .mission-box {
+      min-width: 360px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .mission-head {
+      display: grid;
+      grid-template-columns: minmax(160px, 1fr) 62px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .mission-row {
+      display: grid;
+      grid-template-columns: 26px minmax(240px, 1fr) 62px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .mission-row input[type="text"] {
+      min-height: 32px;
+      width: 100%;
+    }
+
     .task-row {
       display: grid;
       grid-template-columns: 28px 34px minmax(520px, 1fr) 72px;
@@ -1081,11 +1106,11 @@
         { month: "1월", title: "오픈 및 초기 운영 안정화", due: "2027-01-31", tasks: [{ text: "오픈", done: false }, { text: "체험수업 전환 관리", done: false }, { text: "상담 기록", done: false }, { text: "초기 회원 관리", done: false }, { text: "월간 KPI 점검", done: false }] }
       ],
       finance: [
-        { category: "가맹계약", item: "계약금", due: "2026-07-13", amount: 35000000, status: "예정", memo: "7월 13일 계약 예정" },
-        { category: "가맹계약", item: "잔금", due: "2026-09-28", amount: 62000000, status: "예정", memo: "잔금 이후 인테리어 시작 예상" },
-        { category: "인테리어", item: "인테리어 총예산", due: "2026-10-01", amount: 80000000, status: "미정", memo: "계약금/중도금/잔금 비율 추후 설정" },
-        { category: "상가계약", item: "상가 보증금", due: "", amount: 30000000, status: "최소 기준", memo: "그랑파사쥬 조건 확인 필요" },
-        { category: "예비비", item: "예비비", due: "", amount: 0, status: "미정", memo: "마케팅, 교구, 운영자금 포함 필요" }
+        { category: "가맹계약", item: "계약금", due: "2026-07-13", amount: 35000000, status: "예정", memo: "7월 13일 계약 예정", tasks: [{ text: "계약금 지급 계좌 확인", done: false }, { text: "이체 한도 확인", done: false }, { text: "입금증 저장", done: false }, { text: "계약서 사본 확보", done: false }] },
+        { category: "가맹계약", item: "잔금", due: "2026-09-28", amount: 62000000, status: "예정", memo: "잔금 이후 인테리어 시작 예상", tasks: [{ text: "잔금 일정 캘린더 등록", done: false }, { text: "자금 출처별 금액 확인", done: false }, { text: "이체 한도 상향 필요 여부 확인", done: false }, { text: "잔금 전 본사 확인사항 정리", done: false }] },
+        { category: "인테리어", item: "인테리어 총예산", due: "2026-10-01", amount: 80000000, status: "미정", memo: "계약금/중도금/잔금 비율 추후 설정", tasks: [{ text: "인테리어 견적 예시 확보", done: false }, { text: "계약금/중도금/잔금 비율 정하기", done: false }, { text: "추가공사 가능 항목 확인", done: false }, { text: "예비비 포함 여부 확인", done: false }] },
+        { category: "상가계약", item: "상가 보증금", due: "", amount: 30000000, status: "최소 기준", memo: "그랑파사쥬 조건 확인 필요", tasks: [{ text: "보증금 조건 확인", done: false }, { text: "관리비 확인", done: false }, { text: "렌트프리 가능성 확인", done: false }, { text: "계약 전 특약 정리", done: false }] },
+        { category: "예비비", item: "예비비", due: "", amount: 0, status: "미정", memo: "마케팅, 교구, 운영자금 포함 필요", tasks: [{ text: "마케팅 예비비 추정", done: false }, { text: "운영자금 3개월치 추정", done: false }, { text: "추가 교구/가구 예산 확인", done: false }] }
       ],
       contentIdeas: [
         { title: "왜 몬테소리인가", channel: "블로그", stage: "글감", due: "", status: "대기", memo: "부모교육형 글" },
@@ -1093,9 +1118,9 @@
         { title: "교구 하나를 깊게 설명하는 릴스", channel: "인스타", stage: "릴스", due: "", status: "대기", memo: "전문성 브랜딩" }
       ],
       learning: [
-        { title: "몬테소리 자격증 공부", type: "자격증", progress: 0, status: "시작 전", memo: "7월 목표: 2개 수강 시작" },
-        { title: "교육도서 2권 읽기", type: "책", progress: 0, status: "시작 전", memo: "7월 목표" },
-        { title: "교구/환경 구성 아카이브", type: "교구", progress: 0, status: "수집", memo: "사진과 링크 저장" }
+        { title: "몬테소리 자격증 공부", type: "자격증", status: "시작 전", memo: "7월 목표: 2개 수강 시작", tasks: [{ text: "수강 과정 2개 선정", done: false }, { text: "결제/등록 완료", done: false }, { text: "1주차 강의 수강", done: false }, { text: "핵심 개념 노트 정리", done: false }] },
+        { title: "교육도서 2권 읽기", type: "책", status: "시작 전", memo: "7월 목표", tasks: [{ text: "읽을 책 2권 선정", done: false }, { text: "1권 50% 읽기", done: false }, { text: "1권 요약 정리", done: false }, { text: "2권 50% 읽기", done: false }, { text: "2권 요약 정리", done: false }] },
+        { title: "교구/환경 구성 아카이브", type: "교구", status: "수집", memo: "사진과 링크 저장", tasks: [{ text: "벤치마킹 사진 10개 저장", done: false }, { text: "교구별 배치 아이디어 정리", done: false }, { text: "교실 동선 메모 작성", done: false }, { text: "우리 센터 적용점 정리", done: false }] }
       ],
       journal: [
         { date: "2026-07-10", topic: "Project MONT 시작", type: "결정", note: "노션 대신 HTML 기반 CEO OS로 창업 준비 전체를 관리하기로 함", next: "v1 구조 완성 후 실제 조사 데이터 입력" }
@@ -1612,6 +1637,41 @@
       window[`factory_${collection}`] = addFactory;
     }
 
+    function taskProgress(row) {
+      const tasks = row.tasks || [];
+      if (!tasks.length) return { done: 0, total: 0, percent: 0 };
+      const done = tasks.filter((task) => task.done).length;
+      return { done, total: tasks.length, percent: Math.round(done / tasks.length * 100) };
+    }
+
+    function taskProgressCell(collection, index) {
+      const progress = taskProgress(state[collection][index] || {});
+      return `<div style="min-width:150px;">
+        <strong>${progress.percent}%</strong>
+        <div class="bar" style="margin-top:7px;"><span style="width:${progress.percent}%"></span></div>
+        <div class="todo-meta">${progress.done}/${progress.total}개 미션 완료</div>
+      </div>`;
+    }
+
+    function missionCell(collection, index) {
+      const tasks = state[collection][index].tasks || [];
+      return `<div class="mission-box">
+        <div class="mission-head">
+          <strong>소항목 미션</strong>
+          <button class="mini-btn" type="button" onclick="addNestedTask('${collection}', ${index})">추가</button>
+        </div>
+        ${(tasks.length ? tasks : [{ text: "아직 소항목 없음", done: false, placeholder: true }]).map((task, taskIndex) => task.placeholder ? `
+          <div class="todo-meta">추가 버튼을 눌러 이 항목의 세부 미션을 입력하세요.</div>
+        ` : `
+          <div class="mission-row">
+            <input type="checkbox" ${task.done ? "checked" : ""} onchange="toggleNestedTask('${collection}', ${index}, ${taskIndex})">
+            <input type="text" value="${esc(task.text)}" onchange="editNestedTask('${collection}', ${index}, ${taskIndex}, this.value)">
+            <button class="mini-btn" type="button" onclick="deleteNestedTask('${collection}', ${index}, ${taskIndex})">삭제</button>
+          </div>
+        `).join("")}
+      </div>`;
+    }
+
     function renderTimeline() {
       const overall = timelineOverallPercent();
       document.getElementById("timeline").innerHTML = `
@@ -1678,8 +1738,8 @@
       viewMeta.financeTableView = ["자금 상세", "계약금, 잔금, 인테리어, 보증금, 예비비를 관리합니다."];
       renderGenericTable("financeTableView", "finance", [
         { label: "구분", key: "category" }, { label: "항목", key: "item" }, { label: "지급일", key: "due", type: "date" }, { label: "금액", key: "amount", type: "number" },
-        { label: "상태", key: "status", options: ["예정", "완료", "미정", "최소 기준"] }, { label: "메모", key: "memo", type: "textarea" }
-      ], () => ({ category: "", item: "", due: "", amount: 0, status: "미정", memo: "" }));
+        { label: "상태", key: "status", options: ["예정", "완료", "미정", "최소 기준"] }, { label: "진행률", render: (row, i) => taskProgressCell("finance", i) }, { label: "소항목", render: (row, i) => missionCell("finance", i) }, { label: "메모", key: "memo", type: "textarea" }
+      ], () => ({ category: "", item: "", due: "", amount: 0, status: "미정", tasks: [], memo: "" }));
     }
 
     function renderKpi() {
@@ -1804,8 +1864,8 @@
         { label: "글감/콘텐츠", key: "title" }, { label: "채널", key: "channel", options: ["블로그", "인스타", "릴스", "후기"] }, { label: "단계", key: "stage" }, { label: "마감", key: "due", type: "date" }, { label: "상태", key: "status", options: ["대기", "작성중", "완료"] }, { label: "메모", key: "memo", type: "textarea" }
       ], () => ({ title: "", channel: "블로그", stage: "글감", due: "", status: "대기", memo: "" }));
       if (currentView === "learning") renderGenericTable("learning", "learning", [
-        { label: "제목", key: "title" }, { label: "유형", key: "type", options: ["자격증", "책", "강의", "교구", "논문", "영상"] }, { label: "진행률", key: "progress", type: "number" }, { label: "상태", key: "status" }, { label: "메모", key: "memo", type: "textarea" }
-      ], () => ({ title: "", type: "책", progress: 0, status: "시작 전", memo: "" }));
+        { label: "제목", key: "title" }, { label: "유형", key: "type", options: ["자격증", "책", "강의", "교구", "논문", "영상"] }, { label: "진행률", render: (row, i) => taskProgressCell("learning", i) }, { label: "상태", key: "status" }, { label: "소항목", render: (row, i) => missionCell("learning", i) }, { label: "메모", key: "memo", type: "textarea" }
+      ], () => ({ title: "", type: "책", status: "시작 전", tasks: [], memo: "" }));
       if (currentView === "kpi") renderKpi();
       if (currentView === "journal") renderGenericTable("journal", "journal", [
         { label: "날짜", key: "date", type: "date" }, { label: "주제", key: "topic" }, { label: "유형", key: "type", options: ["결정", "상담", "조사", "불안요소", "배운 점"] }, { label: "기록", key: "note", type: "textarea" }, { label: "다음 액션", key: "next", type: "textarea" }
@@ -1843,6 +1903,44 @@
       snapshotForUndo();
       state.todos[index].done = !state.todos[index].done;
       recordActivity("To-do", state.todos[index].title, state.todos[index].done ? "완료" : "미완료");
+      saveState(false);
+    }
+
+    function ensureNestedTasks(collection, index) {
+      state[collection][index].tasks = state[collection][index].tasks || [];
+      return state[collection][index].tasks;
+    }
+
+    function addNestedTask(collection, index) {
+      snapshotForUndo();
+      const tasks = ensureNestedTasks(collection, index);
+      tasks.push({ text: "새 소항목 미션", done: false });
+      recordActivity(collectionName(collection), `${rowName(collection, index)} 소항목 추가`, "새 소항목 미션");
+      saveState(false);
+    }
+
+    function editNestedTask(collection, index, taskIndex, value) {
+      snapshotForUndo();
+      const tasks = ensureNestedTasks(collection, index);
+      tasks[taskIndex].text = value;
+      recordActivity(collectionName(collection), `${rowName(collection, index)} 소항목`, value);
+      saveState(false);
+    }
+
+    function toggleNestedTask(collection, index, taskIndex) {
+      snapshotForUndo();
+      const tasks = ensureNestedTasks(collection, index);
+      tasks[taskIndex].done = !tasks[taskIndex].done;
+      recordActivity(collectionName(collection), `${rowName(collection, index)} · ${tasks[taskIndex].text}`, tasks[taskIndex].done ? "완료" : "미완료");
+      saveState(false);
+    }
+
+    function deleteNestedTask(collection, index, taskIndex) {
+      const tasks = ensureNestedTasks(collection, index);
+      if (!tasks[taskIndex]) return;
+      snapshotForUndo();
+      recordActivity(collectionName(collection), "소항목 삭제", tasks[taskIndex].text);
+      tasks.splice(taskIndex, 1);
       saveState(false);
     }
 
