@@ -729,10 +729,15 @@
 
     .check-item {
       display: grid;
-      grid-template-columns: 34px 26px minmax(260px, 1fr);
+      grid-template-columns: 34px 26px minmax(220px, 0.9fr) minmax(260px, 1.1fr);
       gap: 8px;
       align-items: start;
       line-height: 1.45;
+    }
+
+    .check-note {
+      min-height: 34px;
+      font-size: 13px;
     }
 
     .check-item input {
@@ -787,6 +792,84 @@
       display: block;
       font-size: 13px;
       margin-bottom: 4px;
+    }
+
+    .memo-board {
+      display: grid;
+      grid-template-columns: minmax(360px, 1.15fr) minmax(320px, 0.85fr);
+      gap: 14px;
+    }
+
+    .brain-dump {
+      min-height: calc(100vh - 250px);
+      width: 100%;
+      line-height: 1.65;
+      font-size: 15px;
+      resize: vertical;
+    }
+
+    .summary-panel {
+      display: grid;
+      gap: 12px;
+    }
+
+    .summary-box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fffef8;
+      padding: 12px;
+    }
+
+    .summary-box h4 {
+      margin: 0 0 8px;
+      font-size: 14px;
+    }
+
+    .summary-box ul {
+      margin: 0;
+      padding-left: 18px;
+      line-height: 1.55;
+    }
+
+    .keyword-cloud {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .keyword-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: var(--amber-bg);
+      color: var(--brown);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .flow-diagram {
+      display: grid;
+      gap: 8px;
+    }
+
+    .flow-node {
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 10px 12px;
+      line-height: 1.45;
+    }
+
+    .flow-node:not(:last-child)::after {
+      content: "↓";
+      display: block;
+      color: var(--orange);
+      font-weight: 900;
+      text-align: center;
+      margin: 6px 0 -4px;
     }
 
     .todo.done {
@@ -903,7 +986,7 @@
         height: auto;
       }
 
-      .metrics, .three, .two {
+      .metrics, .three, .two, .memo-board {
         grid-template-columns: 1fr;
       }
 
@@ -983,6 +1066,7 @@
         <section id="learning" class="view"></section>
         <section id="kpi" class="view"></section>
         <section id="journal" class="view"></section>
+        <section id="freeMemo" class="view"></section>
         <section id="todo" class="view"></section>
         <section id="contractChecklist" class="view"></section>
       </main>
@@ -1009,6 +1093,7 @@
       ["learning", "교육 공부", "아카이브"],
       ["kpi", "KPI·동탄100", "목표"],
       ["journal", "창업일지", "기록"],
+      ["freeMemo", "생각 메모장", "브레인"],
       ["todo", "To-do", "오늘"],
       ["contractChecklist", "계약시 체크리스트", "본계약"]
     ];
@@ -1025,6 +1110,7 @@
       learning: ["교육 공부", "몬테소리 자격증, 책, 강의, 교구, 논문, 영상을 모읍니다."],
       kpi: ["KPI·동탄100", "회원 100명 목표와 상담, 체험, 리뷰, 콘텐츠 지표를 관리합니다."],
       journal: ["창업일지", "상담, 조사, 결정사항, 불안요소, 배운 점을 기록합니다."],
+      freeMemo: ["생각 메모장", "의식의 흐름대로 떠오르는 생각을 적고, 핵심 요약과 흐름도로 정리합니다."],
       todo: ["To-do", "센터 오픈까지 해야 할 일을 날짜와 단계별로 관리합니다."],
       contractChecklist: ["계약시 체크리스트", "2026년 7월 12일 스콜라 몬테소리 본계약 전 확인할 질문과 요청 서류를 체크합니다."]
     };
@@ -1073,6 +1159,10 @@
         followers: 0,
         reviews: 0
       },
+      freeMemo: {
+        text: "",
+        updatedAt: ""
+      },
       navOrder: navItems.map(([id]) => id),
       recentActivity: [],
       franchises: franchiseSeed.map(([no, name, region, city, address, phone]) => ({
@@ -1119,8 +1209,8 @@
       ],
       learning: [
         { title: "몬테소리 자격증 공부", type: "자격증", status: "시작 전", memo: "7월 목표: 2개 수강 시작", tasks: [{ text: "수강 과정 2개 선정", done: false }, { text: "결제/등록 완료", done: false }, { text: "1주차 강의 수강", done: false }, { text: "핵심 개념 노트 정리", done: false }] },
-        { title: "교육도서 2권 읽기", type: "책", status: "시작 전", memo: "7월 목표", tasks: [{ text: "읽을 책 2권 선정", done: false }, { text: "1권 50% 읽기", done: false }, { text: "1권 요약 정리", done: false }, { text: "2권 50% 읽기", done: false }, { text: "2권 요약 정리", done: false }] },
-        { title: "교구/환경 구성 아카이브", type: "교구", status: "수집", memo: "사진과 링크 저장", tasks: [{ text: "벤치마킹 사진 10개 저장", done: false }, { text: "교구별 배치 아이디어 정리", done: false }, { text: "교실 동선 메모 작성", done: false }, { text: "우리 센터 적용점 정리", done: false }] }
+        { title: "교육도서 2권 읽기", type: "책", status: "자료 수집", memo: "7월 목표", tasks: [{ text: "읽을 책 2권 선정", done: false }, { text: "1권 50% 읽기", done: false }, { text: "1권 요약 정리", done: false }, { text: "2권 50% 읽기", done: false }, { text: "2권 요약 정리", done: false }] },
+        { title: "교구/환경 구성 아카이브", type: "교구", status: "자료 수집", memo: "사진과 링크 저장", tasks: [{ text: "벤치마킹 사진 10개 저장", done: false }, { text: "교구별 배치 아이디어 정리", done: false }, { text: "교실 동선 메모 작성", done: false }, { text: "우리 센터 적용점 정리", done: false }] }
       ],
       journal: [
         { date: "2026-07-10", topic: "Project MONT 시작", type: "결정", note: "노션 대신 HTML 기반 CEO OS로 창업 준비 전체를 관리하기로 함", next: "v1 구조 완성 후 실제 조사 데이터 입력" }
@@ -1253,7 +1343,7 @@
     function scrollTargets(viewId = currentView) {
       const view = document.getElementById(viewId);
       if (!view) return [];
-      return Array.from(view.querySelectorAll(".table-wrap, .timeline, .checklist-section, .todo-list, .recent-list"));
+      return Array.from(view.querySelectorAll(".table-wrap, .timeline, .checklist-section, .todo-list, .recent-list, .brain-dump, .summary-panel"));
     }
 
     function captureScroll(viewId = currentView) {
@@ -1809,6 +1899,71 @@
       return `<label>${label}<input type="number" value="${esc(state.kpi[key])}" onchange="editKpi('${key}', this.value)"></label>`;
     }
 
+    function analyzeMemoText(text) {
+      const cleaned = String(text || "").trim();
+      const lines = cleaned.split(/\n+/).map((line) => line.trim()).filter(Boolean);
+      const sentences = cleaned.split(/[.!?。！？\n]+/).map((line) => line.trim()).filter((line) => line.length >= 8);
+      const candidates = (sentences.length ? sentences : lines).sort((a, b) => b.length - a.length).slice(0, 5);
+      const stopwords = new Set(["그리고", "그래서", "하지만", "나는", "우리", "이것", "저것", "하면", "해서", "있는", "없는", "정도", "관련", "생각", "내용", "메모", "해야", "일단", "진짜", "너무", "같은", "위해"]);
+      const words = cleaned.match(/[가-힣A-Za-z0-9]{2,}/g) || [];
+      const counts = new Map();
+      words.forEach((word) => {
+        const normalized = word.toLowerCase();
+        if (stopwords.has(normalized) || normalized.length < 2) return;
+        counts.set(normalized, (counts.get(normalized) || 0) + 1);
+      });
+      const keywords = Array.from(counts.entries())
+        .sort((a, b) => b[1] - a[1] || b[0].length - a[0].length)
+        .slice(0, 10)
+        .map(([word]) => word);
+      const flow = lines.length ? lines.slice(0, 7) : candidates.slice(0, 7);
+      return { lines, summary: candidates, keywords, flow };
+    }
+
+    function memoAnalysisHtml() {
+      const analysis = analyzeMemoText(state.freeMemo?.text || "");
+      if (!state.freeMemo?.text?.trim()) {
+        return `<div class="summary-box"><h4>요약 대기</h4><p class="muted">왼쪽 메모장에 떠오르는 생각을 적으면 여기에서 핵심 요약과 흐름도가 만들어집니다.</p></div>`;
+      }
+      return `
+        <div class="summary-box">
+          <h4>핵심 요약</h4>
+          <ul>${(analysis.summary.length ? analysis.summary : ["아직 요약할 문장이 충분하지 않습니다."]).map((item) => `<li>${esc(item)}</li>`).join("")}</ul>
+        </div>
+        <div class="summary-box">
+          <h4>키워드</h4>
+          <div class="keyword-cloud">${(analysis.keywords.length ? analysis.keywords : ["키워드 없음"]).map((word) => `<span class="keyword-chip">${esc(word)}</span>`).join("")}</div>
+        </div>
+        <div class="summary-box">
+          <h4>생각 흐름도</h4>
+          <div class="flow-diagram">${(analysis.flow.length ? analysis.flow : ["메모를 줄바꿈으로 나누어 적으면 흐름도가 더 잘 만들어집니다."]).map((item) => `<div class="flow-node">${esc(item)}</div>`).join("")}</div>
+        </div>`;
+    }
+
+    function renderFreeMemo() {
+      const text = state.freeMemo?.text || "";
+      const updated = state.freeMemo?.updatedAt ? formatTime(new Date(state.freeMemo.updatedAt)) : "아직 저장 전";
+      document.getElementById("freeMemo").innerHTML = `
+        <div class="memo-board">
+          <div class="card">
+            <div class="section-head">
+              <div><h3>의식의 흐름 메모장</h3><p>정리하지 말고 일단 전부 적어두는 공간입니다. 줄바꿈을 많이 쓰면 도식화가 더 잘 됩니다.</p></div>
+              <span class="pill amber">${updated}</span>
+            </div>
+            <div style="padding:16px;">
+              <textarea class="brain-dump" placeholder="예: 오늘 대표님과 이야기하면서 든 생각, 상가 리스크, 블로그 아이디어, 갑자기 떠오른 걱정, 배우자와 상의할 것..." oninput="editFreeMemo(this.value)">${esc(text)}</textarea>
+            </div>
+          </div>
+          <div class="card">
+            <div class="section-head">
+              <div><h3>자동 요약·도식화</h3><p>메모 내용을 바탕으로 핵심 문장, 키워드, 생각 흐름을 정리합니다.</p></div>
+              <button type="button" onclick="renderFreeMemo()">다시 정리</button>
+            </div>
+            <div class="summary-panel" style="padding:16px;">${memoAnalysisHtml()}</div>
+          </div>
+        </div>`;
+    }
+
     function renderLocation() {
       document.getElementById("location").innerHTML = `
         <div class="card">
@@ -1857,11 +2012,12 @@
       return `<details class="check-group" open draggable="true" ondragstart="startContractGroupDrag(event, ${i})" ondragover="allowDrop(event)" ondrop="dropContractGroup(event, ${i})" ondragend="endDrag(event)">
         <summary><span><span class="drag-cell" title="드래그해서 순서 변경">⋮⋮</span>${esc(group.group)}</span><span class="pill blue">${done}/${total}</span></summary>
         <div class="check-items">${(group.items || []).map((item, j) => `
-          <label class="check-item" draggable="true" ondragstart="startContractItemDrag(event, ${i}, ${j})" ondragover="allowDrop(event)" ondrop="dropContractItem(event, ${i}, ${j})" ondragend="endDrag(event)">
+          <div class="check-item" draggable="true" ondragstart="startContractItemDrag(event, ${i}, ${j})" ondragover="allowDrop(event)" ondrop="dropContractItem(event, ${i}, ${j})" ondragend="endDrag(event)">
             <span class="drag-cell" title="드래그해서 순서 변경">⋮⋮</span>
             <input type="checkbox" ${item.done ? "checked" : ""} onchange="toggleContractCheck(${i}, ${j})">
             <span>${esc(item.text)}</span>
-          </label>
+            <input class="check-note" type="text" value="${esc(item.note || "")}" placeholder="답변/메모 입력" onchange="editContractCheckNote(${i}, ${j}, this.value)">
+          </div>
         `).join("")}</div>
         <div class="group-memo">
           <label class="muted">대항목 메모</label>
@@ -1894,12 +2050,13 @@
         { label: "글감/콘텐츠", key: "title" }, { label: "채널", key: "channel", options: ["블로그", "인스타", "릴스", "후기"] }, { label: "단계", key: "stage" }, { label: "마감", key: "due", type: "date" }, { label: "상태", key: "status", options: ["대기", "작성중", "완료"] }, { label: "메모", key: "memo", type: "textarea" }
       ], () => ({ title: "", channel: "블로그", stage: "글감", due: "", status: "대기", memo: "" }));
       if (currentView === "learning") renderGenericTable("learning", "learning", [
-        { label: "제목", key: "title" }, { label: "유형", key: "type", options: ["자격증", "책", "강의", "교구", "논문", "영상"] }, { label: "진행률", render: (row, i) => taskProgressCell("learning", i) }, { label: "상태", key: "status" }, { label: "소항목", render: (row, i) => missionCell("learning", i) }, { label: "메모", key: "memo", type: "textarea" }
+        { label: "제목", key: "title" }, { label: "유형", key: "type", options: ["자격증", "책", "강의", "교구", "논문", "영상"] }, { label: "진행률", render: (row, i) => taskProgressCell("learning", i) }, { label: "상태", key: "status", options: ["시작 전", "자료 수집", "진행중", "복습 필요", "완료", "보류"] }, { label: "소항목", render: (row, i) => missionCell("learning", i) }, { label: "메모", key: "memo", type: "textarea" }
       ], () => ({ title: "", type: "책", status: "시작 전", tasks: [], memo: "" }));
       if (currentView === "kpi") renderKpi();
       if (currentView === "journal") renderGenericTable("journal", "journal", [
         { label: "날짜", key: "date", type: "date" }, { label: "주제", key: "topic" }, { label: "유형", key: "type", options: ["결정", "상담", "조사", "불안요소", "배운 점"] }, { label: "기록", key: "note", type: "textarea" }, { label: "다음 액션", key: "next", type: "textarea" }
       ], () => ({ date: new Date().toISOString().slice(0, 10), topic: "", type: "조사", note: "", next: "" }));
+      if (currentView === "freeMemo") renderFreeMemo();
       if (currentView === "todo") renderGenericTable("todo", "todos", [
         { label: "완료", render: (row, i) => `<input type="checkbox" ${row.done ? "checked" : ""} onchange="editCell('todos',${i},'done',this.checked)">` },
         { label: "할 일", key: "title" }, { label: "영역", key: "area" }, { label: "마감", key: "due", type: "date" }, { label: "우선순위", key: "priority", options: ["상", "중", "하"] }
@@ -1928,6 +2085,15 @@
       state.kpi[key] = Number(value || 0);
       recordActivity("KPI", key, value);
       saveState(false);
+    }
+
+    function editFreeMemo(value) {
+      state.freeMemo = state.freeMemo || {};
+      state.freeMemo.text = value;
+      state.freeMemo.updatedAt = new Date().toISOString();
+      localStorage.setItem(storageKey, JSON.stringify(state));
+      setSaveStatus(authSession ? `메모 자동저장 준비 ${formatTime()}` : `메모 이 기기에 저장됨 ${formatTime()}`);
+      if (authSession) queueCloudSave(false);
     }
 
     function toggleTodo(index) {
@@ -2198,6 +2364,14 @@
       snapshotForUndo();
       state.contractChecklist[groupIndex].memo = value;
       recordActivity("계약시 체크리스트", `${state.contractChecklist[groupIndex].group} 메모`, value);
+      saveState(false);
+    }
+
+    function editContractCheckNote(groupIndex, itemIndex, value) {
+      snapshotForUndo();
+      const item = state.contractChecklist[groupIndex].items[itemIndex];
+      item.note = value;
+      recordActivity("계약시 체크리스트", `${state.contractChecklist[groupIndex].group} · ${item.text} 메모`, value);
       saveState(false);
     }
 
