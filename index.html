@@ -837,11 +837,120 @@
       resize: vertical;
     }
 
+    .recovery-list {
+      display: grid;
+      gap: 8px;
+      padding: 0 16px 16px;
+    }
+
+    .recovery-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      background: #fffef8;
+      padding: 10px 12px;
+    }
+
+    .recovery-item strong {
+      display: block;
+      margin-bottom: 3px;
+      line-height: 1.35;
+    }
+
     .finance-visual {
       display: grid;
       grid-template-columns: minmax(300px, 0.95fr) minmax(360px, 1.05fr);
       gap: 14px;
       margin-top: 14px;
+    }
+
+    .calendar-card {
+      margin-top: 14px;
+    }
+
+    .money-calendar {
+      padding: 16px;
+      overflow: auto;
+    }
+
+    .calendar-weekdays,
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(126px, 1fr));
+      min-width: 920px;
+    }
+
+    .calendar-weekdays div {
+      padding: 8px 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 820;
+      border-bottom: 1px solid var(--line);
+      background: #fff6d7;
+    }
+
+    .calendar-day {
+      min-height: 122px;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+      padding: 8px;
+    }
+
+    .calendar-day:nth-child(7n) {
+      border-right: 0;
+    }
+
+    .calendar-day.other-month {
+      background: #fffaf0;
+      color: #b6a491;
+    }
+
+    .calendar-day.today {
+      background: #fff1b7;
+      box-shadow: inset 0 0 0 3px rgba(228, 111, 41, 0.35);
+    }
+
+    .calendar-date {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      font-weight: 900;
+      margin-bottom: 7px;
+    }
+
+    .calendar-event {
+      display: block;
+      width: 100%;
+      border-radius: 6px;
+      padding: 5px 7px;
+      margin-top: 5px;
+      color: #241813;
+      background: #f4ca2c;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .calendar-event.contract {
+      background: #f4ca2c;
+    }
+
+    .calendar-event.interior {
+      background: #f09a3b;
+    }
+
+    .calendar-event.property {
+      background: #9ed7cf;
+    }
+
+    .calendar-event.reserve {
+      background: #d9c9f5;
     }
 
     .finance-calendar {
@@ -1270,6 +1379,7 @@
         text: "",
         updatedAt: ""
       },
+      memoRecoveryCandidates: [],
       navOrder: navItems.map(([id]) => id),
       recentActivity: [],
       franchises: franchiseSeed.map(([no, name, region, city, address, phone]) => ({
@@ -2060,6 +2170,81 @@
       }));
     }
 
+    function addMonths(month, amount) {
+      const [year, mon] = String(month || todayIso().slice(0, 7)).split("-").map(Number);
+      const date = new Date(year, mon - 1 + amount, 1);
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    }
+
+    function activeFinanceMonth() {
+      const savedMonth = state.settings.financeCalendarMonth;
+      if (savedMonth) return savedMonth;
+      const next = financeRowsWithDates().find((row) => row.status !== "완료") || financeRowsWithDates()[0];
+      return next?.due ? String(next.due).slice(0, 7) : todayIso().slice(0, 7);
+    }
+
+    function financeEventClass(row) {
+      const category = String(row.category || "");
+      if (category.includes("인테리어")) return "interior";
+      if (category.includes("상가")) return "property";
+      if (category.includes("예비")) return "reserve";
+      return "contract";
+    }
+
+    function financeCalendarHtml() {
+      const activeMonth = activeFinanceMonth();
+      const [year, month] = activeMonth.split("-").map(Number);
+      const first = new Date(year, month - 1, 1);
+      const start = new Date(first);
+      const firstDayMonday = (first.getDay() + 6) % 7;
+      start.setDate(first.getDate() - firstDayMonday);
+      const today = todayIso();
+      const rows = financeRowsWithDates();
+      const eventsByDate = new Map();
+      rows.forEach((row) => {
+        if (!eventsByDate.has(row.due)) eventsByDate.set(row.due, []);
+        eventsByDate.get(row.due).push(row);
+      });
+      const cells = [];
+      for (let i = 0; i < 42; i += 1) {
+        const date = new Date(start);
+        date.setDate(start.getDate() + i);
+        const iso = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+        const dayEvents = eventsByDate.get(iso) || [];
+        const other = date.getMonth() !== month - 1;
+        cells.push(`
+          <div class="calendar-day ${other ? "other-month" : ""} ${iso === today ? "today" : ""}">
+            <div class="calendar-date">
+              <span>${date.getDate()}</span>
+              ${iso === today ? `<span class="pill red">오늘</span>` : ""}
+            </div>
+            ${dayEvents.map((row) => `
+              <span class="calendar-event ${financeEventClass(row)}">${esc(row.category || "")} · ${esc(row.item || "")}<br>${money(row.amount)}</span>
+            `).join("")}
+          </div>
+        `);
+      }
+      const monthTotal = rows.filter((row) => String(row.due).slice(0, 7) === activeMonth).reduce((sum, row) => sum + num(row.amount), 0);
+      return `
+        <div class="card calendar-card">
+          <div class="section-head">
+            <div><h3>${monthLabel(activeMonth)} 자금 달력</h3><p>사진처럼 월간 달력으로 지급일과 금액을 한눈에 봅니다. 오늘 날짜는 음영으로 표시됩니다.</p></div>
+            <div class="toolbar">
+              <button type="button" onclick="moveFinanceMonth(-1)">이전달</button>
+              <button type="button" onclick="setFinanceCalendarMonth('${todayIso().slice(0, 7)}')">오늘</button>
+              <button type="button" onclick="moveFinanceMonth(1)">다음달</button>
+              <span class="pill amber">${money(monthTotal)}</span>
+            </div>
+          </div>
+          <div class="money-calendar">
+            <div class="calendar-weekdays">
+              ${["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"].map((day) => `<div>${day}</div>`).join("")}
+            </div>
+            <div class="calendar-grid">${cells.join("")}</div>
+          </div>
+        </div>`;
+    }
+
     function statusPill(status) {
       const color = status === "완료" ? "green" : status === "미정" || status === "최소 기준" ? "amber" : "blue";
       return `<span class="pill ${color}">${esc(status || "미정")}</span>`;
@@ -2126,7 +2311,7 @@
         ${metric("가맹 잔금", money(62000000), "2026-09-28 예정")}
         ${metric("인테리어 예산", money(80000000), "세부 지급일 미정")}
         ${metric("상가 보증금", money(30000000), "최소 기준")}
-      </div>${financeVisualHtml()}<div style="margin-top:14px" id="financeTable"></div>`;
+      </div>${financeCalendarHtml()}${financeVisualHtml()}<div style="margin-top:14px" id="financeTable"></div>`;
       const holder = document.createElement("section");
       holder.id = "financeTableView";
       document.getElementById("financeTable").appendChild(holder);
@@ -2231,6 +2416,7 @@
                   ${entries.map((memo) => `<option value="${esc(memo.id)}" ${memo.id === entry.id ? "selected" : ""}>${dateLabel(memo.date)} · ${esc(memo.title || "제목 없음")}</option>`).join("")}
                 </select>
                 <button type="button" onclick="createMemoEntry()">새 메모 추가</button>
+                <button type="button" onclick="scanMemoRecoveryCandidates()">메모 흔적 찾기</button>
                 <button type="button" onclick="deleteMemoEntry()">메모 삭제</button>
               </div>
             </div>
@@ -2242,6 +2428,7 @@
               <textarea class="brain-dump" placeholder="예: 오늘 대표님과 이야기하면서 든 생각, 상가 리스크, 블로그 아이디어, 갑자기 떠오른 걱정, 배우자와 상의할 것..." oninput="editFreeMemo(this.value)">${esc(text)}</textarea>
               <p class="muted" style="margin-top:8px;">현재 메모: ${dateLabel(entry.date)} · ${esc(entry.title || "제목 없음")} · ${updated}</p>
             </div>
+            ${memoRecoveryHtml()}
           </div>
           <div class="card">
             <div class="section-head">
@@ -2251,6 +2438,26 @@
             <div class="summary-panel" style="padding:16px;">${memoAnalysisHtml(text)}</div>
           </div>
         </div>`;
+    }
+
+    function memoRecoveryHtml() {
+      const candidates = state.memoRecoveryCandidates || [];
+      if (!candidates.length) {
+        return `<div class="recovery-list"><div class="summary-box"><strong>긴급 복구 도구</strong><p class="muted">예전 메모가 안 보이면 “메모 흔적 찾기”를 눌러 현재 브라우저 저장공간에 남아 있는 메모 후보를 찾아보세요.</p></div></div>`;
+      }
+      return `<div class="recovery-list">
+        <div class="summary-box"><strong>발견된 메모 후보 ${candidates.length}개</strong><p class="muted">내용 앞부분을 보고 맞는 후보를 복원하세요. 복원하면 현재 메모장에 새 보관 메모로 추가됩니다.</p></div>
+        ${candidates.map((candidate, index) => `
+          <div class="recovery-item">
+            <div>
+              <strong>${esc(candidate.title || "복구 후보")} · ${dateLabel(candidate.date)}</strong>
+              <p class="muted">${esc(String(candidate.text || "").slice(0, 160))}${String(candidate.text || "").length > 160 ? "..." : ""}</p>
+              <div class="todo-meta">${esc(candidate.source || "브라우저 저장소")}</div>
+            </div>
+            <button type="button" onclick="restoreMemoCandidate(${index})">복원</button>
+          </div>
+        `).join("")}
+      </div>`;
     }
 
     function renderLocation() {
@@ -2376,6 +2583,16 @@
       saveState(false);
     }
 
+    function setFinanceCalendarMonth(month) {
+      snapshotForUndo();
+      state.settings.financeCalendarMonth = month;
+      saveState(false);
+    }
+
+    function moveFinanceMonth(amount) {
+      setFinanceCalendarMonth(addMonths(activeFinanceMonth(), amount));
+    }
+
     function editFreeMemo(value) {
       const entry = currentMemoEntry();
       entry.text = value;
@@ -2436,6 +2653,93 @@
       state.freeMemo.text = currentMemoEntry()?.text || "";
       state.freeMemo.updatedAt = currentMemoEntry()?.updatedAt || "";
       recordActivity("생각 메모장", "메모 삭제", entry.title || entry.date);
+      saveState(false);
+    }
+
+    function collectMemoCandidatesFromValue(value, source, bucket, seen, depth = 0) {
+      if (depth > 8 || value == null) return;
+      const sourceIsMemo = String(source).toLowerCase().includes("memo");
+      if (Array.isArray(value)) {
+        if (sourceIsMemo) value.forEach((item, index) => collectMemoCandidatesFromValue(item, `${source}[${index}]`, bucket, seen, depth + 1));
+        return;
+      }
+      if (typeof value !== "object") return;
+      if (value.freeMemo) collectMemoCandidatesFromValue(value.freeMemo, `${source}.freeMemo`, bucket, seen, depth + 1);
+      if (Array.isArray(value.entries)) {
+        if (sourceIsMemo) value.entries.forEach((entry, index) => collectMemoCandidatesFromValue(entry, `${source}.entries[${index}]`, bucket, seen, depth + 1));
+      }
+      const text = typeof value.text === "string" ? value.text.trim() : "";
+      if (sourceIsMemo && text.length >= 8) {
+        const key = text.slice(0, 500);
+        if (!seen.has(key)) {
+          seen.add(key);
+          bucket.push({
+            source,
+            date: value.date || String(value.updatedAt || todayIso()).slice(0, 10),
+            title: value.title || "복구된 메모",
+            text,
+            updatedAt: value.updatedAt || ""
+          });
+        }
+      }
+      Object.keys(value).forEach((key) => {
+        if (["freeMemo", "entries", "text"].includes(key)) return;
+        if (!sourceIsMemo && !key.toLowerCase().includes("memo")) return;
+        collectMemoCandidatesFromValue(value[key], `${source}.${key}`, bucket, seen, depth + 1);
+      });
+    }
+
+    function scanMemoRecoveryCandidates() {
+      const candidates = [];
+      const seen = new Set();
+      const stores = [
+        ["localStorage", localStorage],
+        ["sessionStorage", sessionStorage]
+      ];
+      stores.forEach(([storeName, store]) => {
+        for (let i = 0; i < store.length; i += 1) {
+          const key = store.key(i);
+          const raw = store.getItem(key) || "";
+          if (!raw.trim()) continue;
+          try {
+            collectMemoCandidatesFromValue(JSON.parse(raw), `${storeName}.${key}`, candidates, seen);
+          } catch {
+            if ((key || "").toLowerCase().includes("memo") && raw.trim().length >= 8 && !seen.has(raw.slice(0, 500))) {
+              seen.add(raw.slice(0, 500));
+              candidates.push({ source: `${storeName}.${key}`, date: todayIso(), title: "복구된 텍스트 메모", text: raw.trim(), updatedAt: "" });
+            }
+          }
+        }
+      });
+      state.memoRecoveryCandidates = candidates
+        .filter((candidate) => String(candidate.text || "").trim())
+        .sort((a, b) => String(b.updatedAt || "").localeCompare(String(a.updatedAt || "")))
+        .slice(0, 12);
+      localStorage.setItem(storageKey, JSON.stringify(state));
+      if (!state.memoRecoveryCandidates.length) {
+        alert("현재 이 사이트 주소의 브라우저 저장공간에서는 예전 메모 흔적을 찾지 못했습니다. 온라인 데이터가 이미 빈 메모로 덮였을 수 있어요.");
+      }
+      renderFreeMemo();
+    }
+
+    function restoreMemoCandidate(index) {
+      const candidate = (state.memoRecoveryCandidates || [])[index];
+      if (!candidate?.text) return;
+      snapshotForUndo();
+      const date = candidate.date || todayIso();
+      const id = makeMemoId(date);
+      const entry = {
+        id,
+        date,
+        title: candidate.title || `복구 메모 ${dateLabel(date)}`,
+        text: candidate.text,
+        updatedAt: new Date().toISOString()
+      };
+      ensureMemoArchive().entries.push(entry);
+      state.freeMemo.activeId = id;
+      state.freeMemo.text = entry.text;
+      state.freeMemo.updatedAt = entry.updatedAt;
+      recordActivity("생각 메모장", "메모 복구", entry.title);
       saveState(false);
     }
 
