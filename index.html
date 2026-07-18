@@ -905,7 +905,7 @@
     }
 
     .calendar-day {
-      min-height: calc(92px + var(--lanes, 0) * 26px);
+      min-height: calc(92px + var(--lanes, 0) * 28px);
       border-right: 1px solid var(--line);
       border-bottom: 1px solid var(--line);
       background: #fff;
@@ -921,7 +921,7 @@
     }
 
     .point-events {
-      margin-top: calc(var(--lanes, 0) * 26px + 8px);
+      margin-top: calc(var(--lanes, 0) * 28px + 8px);
     }
 
     .calendar-bars {
@@ -1011,12 +1011,12 @@
       display: block;
       grid-row: 1;
       position: relative;
-      height: 22px;
-      padding: 4px 8px;
+      height: 24px;
+      padding: 8px 8px 3px;
       color: #241813;
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 850;
-      line-height: 1.25;
+      line-height: 1.15;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -1033,7 +1033,7 @@
       position: absolute;
       top: 0;
       width: 11px;
-      height: 22px;
+      height: 24px;
       background:
         linear-gradient(var(--group-color, rgba(42, 27, 22, 0.35)) 0 33%, transparent 33%),
         var(--task-color, #f09a3b);
@@ -2528,7 +2528,7 @@
         }).join("");
         const laneCount = rangeSegments.length ? Math.max(...rangeSegments.map((segment) => segment.lane)) + 1 : 0;
         const bars = rangeSegments.map((segment) => `
-          <span class="calendar-range-bar ${segment.rangeStart ? "range-start" : ""} ${segment.rangeEnd ? "range-end" : ""} ${segment.rangeSingle ? "range-single" : ""}" style="grid-column:${segment.startCol + 1} / span ${segment.span}; transform:translateY(${segment.lane * 26}px); --group-color:${esc(segment.groupColor || "#7c4d2b")}; --task-color:${esc(segment.taskColor || "#f39a2e")};" title="${esc(segment.title || "")}">${esc(segment.label || "")}</span>
+          <span class="calendar-range-bar ${segment.rangeStart ? "range-start" : ""} ${segment.rangeEnd ? "range-end" : ""} ${segment.rangeSingle ? "range-single" : ""}" style="grid-column:${segment.startCol + 1} / span ${segment.span}; transform:translateY(${segment.lane * 28}px); --group-color:${esc(segment.groupColor || "#7c4d2b")}; --task-color:${esc(segment.taskColor || "#f39a2e")};" title="${esc(segment.title || "")}">${esc(segment.label || "")}</span>
         `).join("");
         weeks.push(`
           <div class="calendar-week" style="--lanes:${laneCount};">
