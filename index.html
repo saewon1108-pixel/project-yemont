@@ -680,7 +680,7 @@
 
     .task-row {
       display: grid;
-      grid-template-columns: 28px 34px minmax(520px, 1fr) 72px;
+      grid-template-columns: 28px 34px minmax(260px, 1fr) 150px 150px 72px;
       gap: 8px;
       align-items: center;
     }
@@ -877,9 +877,14 @@
     }
 
     .calendar-weekdays,
-    .calendar-grid {
+    .calendar-week {
       display: grid;
       grid-template-columns: repeat(7, minmax(126px, 1fr));
+      min-width: 920px;
+    }
+
+    .calendar-grid {
+      display: grid;
       min-width: 920px;
     }
 
@@ -893,15 +898,33 @@
     }
 
     .calendar-day {
-      min-height: 122px;
+      min-height: calc(86px + var(--lanes, 0) * 26px);
       border-right: 1px solid var(--line);
       border-bottom: 1px solid var(--line);
       background: #fff;
       padding: 7px;
     }
 
-    .calendar-day:nth-child(7n) {
+    .calendar-day:last-of-type {
       border-right: 0;
+    }
+
+    .calendar-week {
+      position: relative;
+    }
+
+    .point-events {
+      margin-top: calc(var(--lanes, 0) * 26px + 3px);
+    }
+
+    .calendar-bars {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 33px;
+      display: grid;
+      grid-template-columns: repeat(7, minmax(126px, 1fr));
+      pointer-events: none;
     }
 
     .calendar-day.other-month {
@@ -968,25 +991,36 @@
     .calendar-event.timeline-event {
       background: #f09a3b;
       border-radius: 0;
-      margin-left: -7px;
-      margin-right: -7px;
+      margin: 0;
       padding-left: 10px;
     }
 
-    .calendar-event.timeline-event.range-start {
+    .calendar-range-bar {
+      display: block;
+      height: 22px;
+      padding: 4px 8px;
+      color: #241813;
+      font-size: 11px;
+      font-weight: 850;
+      line-height: 1.25;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      background: #f09a3b;
+      border-radius: 0;
+      box-shadow: 0 1px 0 rgba(42, 27, 22, 0.08);
+    }
+
+    .calendar-range-bar.range-start {
       border-radius: 6px 0 0 6px;
-      margin-left: 0;
     }
 
-    .calendar-event.timeline-event.range-end {
+    .calendar-range-bar.range-end {
       border-radius: 0 6px 6px 0;
-      margin-right: 0;
     }
 
-    .calendar-event.timeline-event.range-single {
+    .calendar-range-bar.range-single {
       border-radius: 6px;
-      margin-left: 0;
-      margin-right: 0;
     }
 
     .finance-calendar {
@@ -1652,6 +1686,15 @@
           item.start = item.due;
           item.due = swap;
         }
+        (item.tasks || []).forEach((task) => {
+          if (!task.start) task.start = item.start || firstDayOfMonth(item.due) || item.due || "";
+          if (!task.due) task.due = task.start || item.due || "";
+          if (task.start && task.due && task.start > task.due) {
+            const swap = task.start;
+            task.start = task.due;
+            task.due = swap;
+          }
+        });
       });
       state.freeMemo.text = currentMemoEntry()?.text || "";
       state.freeMemo.updatedAt = currentMemoEntry()?.updatedAt || "";
@@ -2209,7 +2252,9 @@
             <div class="task-row" draggable="true" ondragstart="startTimelineTaskDrag(event, ${i}, ${j})" ondragover="allowDrop(event)" ondrop="dropTimelineTask(event, ${i}, ${j})" ondragend="endDrag(event)">
               <input type="checkbox" ${task.done ? "checked" : ""} onchange="toggleTimelineTask(${i}, ${j})">
               <span class="drag-cell" title="드래그해서 순서 변경">⋮⋮</span>
-              <input type="text" value="${esc(task.text)}" onchange="editTimelineTask(${i}, ${j}, this.value)">
+              <input type="text" value="${esc(task.text)}" onchange="editTimelineTaskField(${i}, ${j}, 'text', this.value)">
+              <input type="date" value="${esc(task.start || item.start || "")}" title="세부항목 시작일" onchange="editTimelineTaskField(${i}, ${j}, 'start', this.value)">
+              <input type="date" value="${esc(task.due || item.due || "")}" title="세부항목 마감일" onchange="editTimelineTaskField(${i}, ${j}, 'due', this.value)">
               <button class="mini-btn" type="button" onclick="deleteTimelineTask(${i}, ${j})">삭제</button>
             </div>
           `).join("")}</div>
@@ -2277,20 +2322,23 @@
     function homeCalendarEvents() {
       const events = [];
       (state.timeline || []).forEach((item, index) => {
-        const start = item.start || firstDayOfMonth(item.due) || item.due;
-        const end = item.due || start;
-        getDateRange(start, end).forEach((date) => {
+        (item.tasks || []).forEach((task, taskIndex) => {
+          const start = task.start || item.start || firstDayOfMonth(item.due) || item.due;
+          const end = task.due || start;
+          if (!start || !end) return;
           events.push({
-            date,
+            date: start,
+            start,
+            end,
+            isRange: true,
             type: "timeline",
-            title: `${item.month} · ${item.title}`,
+            title: task.text || item.title,
             amount: "",
             className: "timeline-event",
-            rangeStart: date === start,
-            rangeEnd: date === end,
             rangeSingle: start === end,
             order: 1,
-            sourceIndex: index
+            sourceIndex: index,
+            taskIndex
           });
         });
       });
@@ -2333,6 +2381,39 @@
       return esc(parts.join(" · "));
     }
 
+    function isoFromDate(date) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    }
+
+    function addDaysIso(iso, days) {
+      const date = new Date(`${iso}T00:00:00`);
+      date.setDate(date.getDate() + days);
+      return isoFromDate(date);
+    }
+
+    function timelineRangeSegments(events, weekStartIso, weekDates) {
+      const weekEndIso = weekDates[6];
+      return events
+        .filter((event) => event.isRange && event.start <= weekEndIso && event.end >= weekStartIso)
+        .map((event) => {
+          const segStart = event.start > weekStartIso ? event.start : weekStartIso;
+          const segEnd = event.end < weekEndIso ? event.end : weekEndIso;
+          const startCol = weekDates.indexOf(segStart);
+          const endCol = weekDates.indexOf(segEnd);
+          return {
+            ...event,
+            startCol,
+            span: Math.max(1, endCol - startCol + 1),
+            label: event.start >= weekStartIso && event.start <= weekEndIso ? event.title : "",
+            rangeStart: segStart === event.start,
+            rangeEnd: segEnd === event.end,
+            rangeSingle: event.start === event.end
+          };
+        })
+        .filter((segment) => segment.startCol >= 0)
+        .sort((a, b) => a.startCol - b.startCol || String(a.title).localeCompare(String(b.title)));
+    }
+
     function calendarHtml({ title, description, activeMonth, events, monthSettingKey, totalLabel = "" }) {
       const [year, month] = activeMonth.split("-").map(Number);
       const first = new Date(year, month - 1, 1);
@@ -2341,26 +2422,41 @@
       start.setDate(first.getDate() - firstDayMonday);
       const today = todayIso();
       const eventsByDate = new Map();
-      events.forEach((event) => {
+      events.filter((event) => !event.isRange).forEach((event) => {
         if (!eventsByDate.has(event.date)) eventsByDate.set(event.date, []);
         eventsByDate.get(event.date).push(event);
       });
-      const cells = [];
-      for (let i = 0; i < 42; i += 1) {
-        const date = new Date(start);
-        date.setDate(start.getDate() + i);
-        const iso = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-        const dayEvents = eventsByDate.get(iso) || [];
-        const other = date.getMonth() !== month - 1;
-        cells.push(`
-          <div class="calendar-day ${other ? "other-month" : ""} ${iso === today ? "today" : ""}">
-            <div class="calendar-date">
-              <span>${date.getDate()}</span>
-              ${iso === today ? `<span class="pill red">오늘</span>` : ""}
+      const weeks = [];
+      for (let week = 0; week < 6; week += 1) {
+        const weekStart = new Date(start);
+        weekStart.setDate(start.getDate() + week * 7);
+        const weekDates = Array.from({ length: 7 }, (_, index) => addDaysIso(isoFromDate(weekStart), index));
+        const rangeSegments = timelineRangeSegments(events, weekDates[0], weekDates);
+        const days = weekDates.map((iso) => {
+          const date = new Date(`${iso}T00:00:00`);
+          const dayEvents = eventsByDate.get(iso) || [];
+          const other = date.getMonth() !== month - 1;
+          return `
+            <div class="calendar-day ${other ? "other-month" : ""} ${iso === today ? "today" : ""}">
+              <div class="calendar-date">
+                <span>${date.getDate()}</span>
+                ${iso === today ? `<span class="pill red">오늘</span>` : ""}
+              </div>
+              <div class="point-events">
+                ${dayEvents.map((event) => `
+                  <span class="calendar-event ${event.className || ""}" title="${esc([event.title, event.amount].filter(Boolean).join(" · "))}">${calendarEventLabel(event)}</span>
+                `).join("")}
+              </div>
             </div>
-            ${dayEvents.map((event) => `
-              <span class="calendar-event ${event.className || ""} ${event.rangeStart ? "range-start" : ""} ${event.rangeEnd ? "range-end" : ""} ${event.rangeSingle ? "range-single" : ""}" title="${esc([event.title, event.amount].filter(Boolean).join(" · "))}">${calendarEventLabel(event)}</span>
-            `).join("")}
+          `;
+        }).join("");
+        const bars = rangeSegments.map((segment, lane) => `
+          <span class="calendar-range-bar ${segment.rangeStart ? "range-start" : ""} ${segment.rangeEnd ? "range-end" : ""} ${segment.rangeSingle ? "range-single" : ""}" style="grid-column:${segment.startCol + 1} / span ${segment.span}; transform:translateY(${lane * 26}px);" title="${esc(segment.title || "")}">${esc(segment.label || "")}</span>
+        `).join("");
+        weeks.push(`
+          <div class="calendar-week" style="--lanes:${rangeSegments.length};">
+            ${days}
+            <div class="calendar-bars">${bars}</div>
           </div>
         `);
       }
@@ -2379,7 +2475,7 @@
             <div class="calendar-weekdays">
               ${["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"].map((day) => `<div>${day}</div>`).join("")}
             </div>
-            <div class="calendar-grid">${cells.join("")}</div>
+            <div class="calendar-grid">${weeks.join("")}</div>
           </div>
         </div>`;
     }
@@ -3174,15 +3270,27 @@
     function addTimelineTask(index) {
       snapshotForUndo();
       state.timeline[index].tasks = state.timeline[index].tasks || [];
-      state.timeline[index].tasks.push({ text: "새 세부항목", done: false });
+      state.timeline[index].tasks.push({ text: "새 세부항목", start: state.timeline[index].start || todayIso(), due: state.timeline[index].due || state.timeline[index].start || todayIso(), done: false });
       recordActivity("오픈 타임라인", `${state.timeline[index].month} 세부항목 추가`, "새 세부항목");
       saveState(false);
     }
 
     function editTimelineTask(index, taskIndex, value) {
+      editTimelineTaskField(index, taskIndex, "text", value);
+    }
+
+    function editTimelineTaskField(index, taskIndex, key, value) {
       snapshotForUndo();
-      state.timeline[index].tasks[taskIndex].text = value;
-      recordActivity("오픈 타임라인", `${state.timeline[index].month} 세부항목`, value);
+      const task = state.timeline[index].tasks[taskIndex];
+      task[key] = value;
+      if (!task.start) task.start = state.timeline[index].start || firstDayOfMonth(state.timeline[index].due) || state.timeline[index].due || "";
+      if (!task.due) task.due = task.start || state.timeline[index].due || "";
+      if (task.start && task.due && task.start > task.due) {
+        const swap = task.start;
+        task.start = task.due;
+        task.due = swap;
+      }
+      recordActivity("오픈 타임라인", `${state.timeline[index].month} 세부항목 ${key}`, value);
       saveState(false);
     }
 
