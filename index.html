@@ -680,9 +680,16 @@
 
     .task-row {
       display: grid;
-      grid-template-columns: 28px 34px minmax(260px, 1fr) 150px 150px 72px;
+      grid-template-columns: 28px 34px minmax(240px, 1fr) 150px 20px 150px 72px;
       gap: 8px;
       align-items: center;
+    }
+
+    .range-separator {
+      text-align: center;
+      color: var(--muted);
+      font-weight: 900;
+      font-size: 18px;
     }
 
     .task-row input[type="text"] {
@@ -1003,6 +1010,7 @@
     .calendar-range-bar {
       display: block;
       grid-row: 1;
+      position: relative;
       height: 22px;
       padding: 4px 8px;
       color: #241813;
@@ -1012,21 +1020,53 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      background: #f09a3b;
+      background:
+        linear-gradient(var(--group-color, rgba(42, 27, 22, 0.35)) 0 33%, transparent 33%),
+        var(--task-color, #f09a3b);
       border-radius: 0;
       box-shadow: 0 1px 0 rgba(42, 27, 22, 0.08);
     }
 
+    .calendar-range-bar::before,
+    .calendar-range-bar::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      width: 11px;
+      height: 22px;
+      background:
+        linear-gradient(var(--group-color, rgba(42, 27, 22, 0.35)) 0 33%, transparent 33%),
+        var(--task-color, #f09a3b);
+      display: none;
+    }
+
+    .calendar-range-bar.range-start::before {
+      display: block;
+      left: -10px;
+      clip-path: polygon(100% 0, 0 50%, 100% 100%);
+    }
+
+    .calendar-range-bar.range-end::after {
+      display: block;
+      right: -10px;
+      clip-path: polygon(0 0, 100% 50%, 0 100%);
+    }
+
     .calendar-range-bar.range-start {
-      border-radius: 6px 0 0 6px;
+      border-radius: 0;
     }
 
     .calendar-range-bar.range-end {
-      border-radius: 0 6px 6px 0;
+      border-radius: 0;
     }
 
     .calendar-range-bar.range-single {
-      border-radius: 6px;
+      border-radius: 0;
+    }
+
+    .calendar-range-bar.range-single::before,
+    .calendar-range-bar.range-single::after {
+      display: block;
     }
 
     .finance-calendar {
@@ -2260,6 +2300,7 @@
               <span class="drag-cell" title="드래그해서 순서 변경">⋮⋮</span>
               <input type="text" value="${esc(task.text)}" onchange="editTimelineTaskField(${i}, ${j}, 'text', this.value)">
               <input type="date" value="${esc(task.start || item.start || "")}" title="세부항목 시작일" onchange="editTimelineTaskField(${i}, ${j}, 'start', this.value)">
+              <span class="range-separator">~</span>
               <input type="date" value="${esc(task.due || item.due || "")}" title="세부항목 마감일" onchange="editTimelineTaskField(${i}, ${j}, 'due', this.value)">
               <button class="mini-btn" type="button" onclick="deleteTimelineTask(${i}, ${j})">삭제</button>
             </div>
@@ -2325,12 +2366,27 @@
       return dates;
     }
 
+    const groupColors = ["#7c4d2b", "#375a86", "#3d7a68", "#8a5a98", "#a9672e", "#536d39", "#83524d", "#496d8f"];
+    const taskColors = ["#f39a2e", "#73c98e", "#7fb4f0", "#ef7f6d", "#c6a0ef", "#f0c64e", "#66c9c2", "#f29cc2", "#a9d66f", "#b8a7ff", "#f6a85a", "#8dd3f7"];
+
+    function paletteColor(list, index) {
+      return list[Math.abs(Number(index) || 0) % list.length];
+    }
+
+    function normalizedRange(start, end) {
+      if (!start && !end) return { start: "", end: "" };
+      if (!start) return { start: end, end };
+      if (!end) return { start, end: start };
+      return start <= end ? { start, end } : { start: end, end: start };
+    }
+
     function homeCalendarEvents() {
       const events = [];
       (state.timeline || []).forEach((item, index) => {
         (item.tasks || []).forEach((task, taskIndex) => {
-          const start = task.start || item.start || firstDayOfMonth(item.due) || item.due;
-          const end = task.due || start;
+          const rawStart = task.start || item.start || firstDayOfMonth(item.due) || item.due;
+          const rawEnd = task.due || rawStart;
+          const { start, end } = normalizedRange(rawStart, rawEnd);
           if (!start || !end) return;
           events.push({
             date: start,
@@ -2342,6 +2398,8 @@
             amount: "",
             className: "timeline-event",
             rangeSingle: start === end,
+            groupColor: paletteColor(groupColors, index),
+            taskColor: paletteColor(taskColors, index * 5 + taskIndex),
             order: 1,
             sourceIndex: index,
             taskIndex
@@ -2470,7 +2528,7 @@
         }).join("");
         const laneCount = rangeSegments.length ? Math.max(...rangeSegments.map((segment) => segment.lane)) + 1 : 0;
         const bars = rangeSegments.map((segment) => `
-          <span class="calendar-range-bar ${segment.rangeStart ? "range-start" : ""} ${segment.rangeEnd ? "range-end" : ""} ${segment.rangeSingle ? "range-single" : ""}" style="grid-column:${segment.startCol + 1} / span ${segment.span}; transform:translateY(${segment.lane * 26}px);" title="${esc(segment.title || "")}">${esc(segment.label || "")}</span>
+          <span class="calendar-range-bar ${segment.rangeStart ? "range-start" : ""} ${segment.rangeEnd ? "range-end" : ""} ${segment.rangeSingle ? "range-single" : ""}" style="grid-column:${segment.startCol + 1} / span ${segment.span}; transform:translateY(${segment.lane * 26}px); --group-color:${esc(segment.groupColor || "#7c4d2b")}; --task-color:${esc(segment.taskColor || "#f39a2e")};" title="${esc(segment.title || "")}">${esc(segment.label || "")}</span>
         `).join("");
         weeks.push(`
           <div class="calendar-week" style="--lanes:${laneCount};">
@@ -3262,11 +3320,6 @@
       snapshotForUndo();
       state.timeline[index][key] = value;
       if (!state.timeline[index].start) state.timeline[index].start = firstDayOfMonth(state.timeline[index].due) || state.timeline[index].due || "";
-      if (state.timeline[index].start && state.timeline[index].due && state.timeline[index].start > state.timeline[index].due) {
-        const swap = state.timeline[index].start;
-        state.timeline[index].start = state.timeline[index].due;
-        state.timeline[index].due = swap;
-      }
       recordActivity("오픈 타임라인", `${state.timeline[index].month} · ${key}`, value);
       saveState(false);
     }
@@ -3304,11 +3357,6 @@
       task[key] = value;
       if (!task.start) task.start = state.timeline[index].start || firstDayOfMonth(state.timeline[index].due) || state.timeline[index].due || "";
       if (!task.due) task.due = task.start || state.timeline[index].due || "";
-      if (task.start && task.due && task.start > task.due) {
-        const swap = task.start;
-        task.start = task.due;
-        task.due = swap;
-      }
       recordActivity("오픈 타임라인", `${state.timeline[index].month} 세부항목 ${key}`, value);
       saveState(false);
     }
