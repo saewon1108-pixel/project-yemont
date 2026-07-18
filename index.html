@@ -800,12 +800,111 @@
       gap: 14px;
     }
 
+    .memo-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .memo-tools select {
+      width: auto;
+      min-width: 230px;
+      max-width: 100%;
+    }
+
+    .memo-meta {
+      display: grid;
+      grid-template-columns: 160px minmax(220px, 1fr);
+      gap: 10px;
+      padding: 16px 16px 0;
+    }
+
+    .memo-meta label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 760;
+    }
+
     .brain-dump {
       min-height: calc(100vh - 250px);
       width: 100%;
       line-height: 1.65;
       font-size: 15px;
       resize: vertical;
+    }
+
+    .finance-visual {
+      display: grid;
+      grid-template-columns: minmax(300px, 0.95fr) minmax(360px, 1.05fr);
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .finance-calendar {
+      display: grid;
+      gap: 10px;
+      padding: 16px;
+      max-height: 430px;
+      overflow: auto;
+    }
+
+    .finance-month {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fffef8;
+      padding: 12px;
+    }
+
+    .finance-month h4 {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 0 0 8px;
+      font-size: 14px;
+    }
+
+    .finance-month-row {
+      display: grid;
+      grid-template-columns: 74px minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 0;
+      border-top: 1px dashed var(--line);
+      font-size: 13px;
+    }
+
+    .finance-timeline {
+      display: grid;
+      gap: 9px;
+      padding: 16px;
+      max-height: 430px;
+      overflow: auto;
+    }
+
+    .finance-event {
+      display: grid;
+      grid-template-columns: 92px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fffef8;
+      padding: 11px 12px;
+    }
+
+    .finance-event strong {
+      display: block;
+      line-height: 1.35;
+    }
+
+    .finance-empty {
+      padding: 16px;
+      color: var(--muted);
+      line-height: 1.55;
     }
 
     .summary-panel {
@@ -986,7 +1085,11 @@
         height: auto;
       }
 
-      .metrics, .three, .two, .memo-board {
+      .metrics, .three, .two, .memo-board, .finance-visual {
+        grid-template-columns: 1fr;
+      }
+
+      .memo-meta {
         grid-template-columns: 1fr;
       }
 
@@ -1160,6 +1263,10 @@
         reviews: 0
       },
       freeMemo: {
+        activeId: "memo-2026-07-18-default",
+        entries: [
+          { id: "memo-2026-07-18-default", date: "2026-07-18", title: "2026.07.18 메모", text: "", updatedAt: "" }
+        ],
         text: "",
         updatedAt: ""
       },
@@ -1244,6 +1351,7 @@
     let cloudSaveTimer = null;
     let isCloudLoading = false;
     const scrollMemory = {};
+    normalizeState();
 
     function clone(value) {
       return JSON.parse(JSON.stringify(value));
@@ -1282,6 +1390,80 @@
       return String(value ?? "").replace(/[&<>"']/g, (char) => ({
         "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#039;"
       }[char]));
+    }
+
+    function todayIso() {
+      const now = new Date();
+      const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+      return local.toISOString().slice(0, 10);
+    }
+
+    function dateLabel(value) {
+      if (!value) return "날짜 미정";
+      const [year, month, day] = String(value).split("-");
+      return year && month && day ? `${year}.${month}.${day}` : value;
+    }
+
+    function monthLabel(value) {
+      if (!value) return "날짜 미정";
+      const [year, month] = String(value).split("-");
+      return year && month ? `${year}.${month}` : value;
+    }
+
+    function makeMemoId(date = todayIso()) {
+      return `memo-${date}-${Date.now()}-${Math.random().toString(16).slice(2, 7)}`;
+    }
+
+    function defaultMemoTitle(date = todayIso()) {
+      return `${dateLabel(date)} 메모`;
+    }
+
+    function ensureMemoArchive() {
+      state.freeMemo = state.freeMemo || {};
+      if (!Array.isArray(state.freeMemo.entries)) {
+        const legacyText = state.freeMemo.text || "";
+        const legacyUpdated = state.freeMemo.updatedAt || new Date().toISOString();
+        const legacyDate = String(legacyUpdated).slice(0, 10) || todayIso();
+        const id = makeMemoId(legacyDate);
+        state.freeMemo.entries = [{
+          id,
+          date: legacyDate,
+          title: defaultMemoTitle(legacyDate),
+          text: legacyText,
+          updatedAt: legacyUpdated
+        }];
+        state.freeMemo.activeId = id;
+      }
+      if (!state.freeMemo.entries.length) {
+        const date = todayIso();
+        const id = makeMemoId(date);
+        state.freeMemo.entries.push({ id, date, title: defaultMemoTitle(date), text: "", updatedAt: "" });
+        state.freeMemo.activeId = id;
+      }
+      if (!state.freeMemo.activeId || !state.freeMemo.entries.some((entry) => entry.id === state.freeMemo.activeId)) {
+        state.freeMemo.activeId = state.freeMemo.entries[0].id;
+      }
+      return state.freeMemo;
+    }
+
+    function currentMemoEntry() {
+      const archive = ensureMemoArchive();
+      return archive.entries.find((entry) => entry.id === archive.activeId) || archive.entries[0];
+    }
+
+    function sortedMemoEntries() {
+      const archive = ensureMemoArchive();
+      return [...archive.entries].sort((a, b) => {
+        const byDate = String(b.date || "").localeCompare(String(a.date || ""));
+        if (byDate) return byDate;
+        return String(b.updatedAt || "").localeCompare(String(a.updatedAt || ""));
+      });
+    }
+
+    function normalizeState() {
+      ensureMemoArchive();
+      state.freeMemo.text = currentMemoEntry()?.text || "";
+      state.freeMemo.updatedAt = currentMemoEntry()?.updatedAt || "";
     }
 
     function getNavItems() {
@@ -1343,7 +1525,7 @@
     function scrollTargets(viewId = currentView) {
       const view = document.getElementById(viewId);
       if (!view) return [];
-      return Array.from(view.querySelectorAll(".table-wrap, .timeline, .checklist-section, .todo-list, .recent-list, .brain-dump, .summary-panel"));
+      return Array.from(view.querySelectorAll(".table-wrap, .timeline, .checklist-section, .todo-list, .recent-list, .brain-dump, .summary-panel, .finance-calendar, .finance-timeline"));
     }
 
     function captureScroll(viewId = currentView) {
@@ -1488,6 +1670,7 @@
         const row = Array.isArray(payload) ? payload[0] : null;
         if (row && !cloudDataIsEmpty(row.data)) {
           state = mergeDeep(clone(defaults), row.data);
+          normalizeState();
           localStorage.setItem(storageKey, JSON.stringify(state));
           setSaveStatus(`온라인 데이터 불러옴 ${formatTime()}`);
           render();
@@ -1842,6 +2025,85 @@
       </details>`;
     }
 
+    function financeRowsWithDates() {
+      return (state.finance || [])
+        .map((row, index) => ({ ...row, index }))
+        .filter((row) => row.due)
+        .sort((a, b) => String(a.due).localeCompare(String(b.due)));
+    }
+
+    function financeMonthlyGroups() {
+      const groups = new Map();
+      financeRowsWithDates().forEach((row) => {
+        const month = String(row.due).slice(0, 7);
+        if (!groups.has(month)) groups.set(month, []);
+        groups.get(month).push(row);
+      });
+      return Array.from(groups.entries()).map(([month, rows]) => ({
+        month,
+        rows,
+        total: rows.reduce((sum, row) => sum + num(row.amount), 0)
+      }));
+    }
+
+    function statusPill(status) {
+      const color = status === "완료" ? "green" : status === "미정" || status === "최소 기준" ? "amber" : "blue";
+      return `<span class="pill ${color}">${esc(status || "미정")}</span>`;
+    }
+
+    function financeVisualHtml() {
+      const rows = financeRowsWithDates();
+      const groups = financeMonthlyGroups();
+      const undated = (state.finance || []).filter((row) => !row.due).length;
+      const datedTotal = rows.reduce((sum, row) => sum + num(row.amount), 0);
+      const next = rows.find((row) => row.status !== "완료") || rows[0];
+      return `
+        <div class="finance-visual">
+          <div class="card">
+            <div class="section-head">
+              <div><h3>자금 캘린더</h3><p>월별로 필요한 금액을 먼저 봅니다. 지급일을 입력하면 자동으로 묶입니다.</p></div>
+              <span class="pill amber">${money(datedTotal)}</span>
+            </div>
+            <div class="finance-calendar">
+              ${groups.length ? groups.map((group) => `
+                <div class="finance-month">
+                  <h4><span>${monthLabel(group.month)}</span><span>${money(group.total)}</span></h4>
+                  ${group.rows.map((row) => `
+                    <div class="finance-month-row">
+                      <span>${dateLabel(row.due).slice(5)}</span>
+                      <strong>${esc(row.category || "")} · ${esc(row.item || "")}</strong>
+                      <span>${money(row.amount)}</span>
+                    </div>
+                  `).join("")}
+                </div>
+              `).join("") : `<div class="finance-empty">지급일이 입력된 자금 항목이 아직 없습니다. 아래 자금 상세 표에서 지급일을 넣으면 캘린더가 만들어집니다.</div>`}
+            </div>
+          </div>
+          <div class="card">
+            <div class="section-head">
+              <div><h3>날짜순 자금 타임라인</h3><p>언제, 무엇 때문에, 얼마가 필요한지 순서대로 확인합니다.</p></div>
+              ${next ? `<span class="pill blue">다음 ${dateLabel(next.due)}</span>` : `<span class="pill amber">날짜 미정</span>`}
+            </div>
+            <div class="finance-timeline">
+              ${rows.length ? rows.map((row) => `
+                <div class="finance-event">
+                  <span class="pill amber">${dateLabel(row.due).slice(5)}</span>
+                  <div>
+                    <strong>${esc(row.category || "")} · ${esc(row.item || "")}</strong>
+                    <p class="muted">${esc(row.memo || "메모 없음")}</p>
+                  </div>
+                  <div style="text-align:right;">
+                    <strong>${money(row.amount)}</strong>
+                    <div style="margin-top:5px;">${statusPill(row.status)}</div>
+                  </div>
+                </div>
+              `).join("") : `<div class="finance-empty">날짜를 입력하면 지급 타임라인이 자동으로 정렬됩니다.</div>`}
+              ${undated ? `<div class="summary-box"><strong>날짜 미정 항목 ${undated}개</strong><p class="muted">상가 보증금, 예비비처럼 아직 지급일이 없는 항목은 아래 표에서 날짜가 정해지는 순간 이 타임라인에 들어옵니다.</p></div>` : ""}
+            </div>
+          </div>
+        </div>`;
+    }
+
     function renderFinance() {
       const total = state.finance.reduce((sum, row) => sum + num(row.amount), 0);
       document.getElementById("finance").innerHTML = `<div class="grid metrics">
@@ -1850,7 +2112,7 @@
         ${metric("가맹 잔금", money(62000000), "2026-09-28 예정")}
         ${metric("인테리어 예산", money(80000000), "세부 지급일 미정")}
         ${metric("상가 보증금", money(30000000), "최소 기준")}
-      </div><div style="margin-top:14px" id="financeTable"></div>`;
+      </div>${financeVisualHtml()}<div style="margin-top:14px" id="financeTable"></div>`;
       const holder = document.createElement("section");
       holder.id = "financeTableView";
       document.getElementById("financeTable").appendChild(holder);
@@ -1920,9 +2182,9 @@
       return { lines, summary: candidates, keywords, flow };
     }
 
-    function memoAnalysisHtml() {
-      const analysis = analyzeMemoText(state.freeMemo?.text || "");
-      if (!state.freeMemo?.text?.trim()) {
+    function memoAnalysisHtml(text = "") {
+      const analysis = analyzeMemoText(text);
+      if (!String(text || "").trim()) {
         return `<div class="summary-box"><h4>요약 대기</h4><p class="muted">왼쪽 메모장에 떠오르는 생각을 적으면 여기에서 핵심 요약과 흐름도가 만들어집니다.</p></div>`;
       }
       return `
@@ -1941,17 +2203,30 @@
     }
 
     function renderFreeMemo() {
-      const text = state.freeMemo?.text || "";
-      const updated = state.freeMemo?.updatedAt ? formatTime(new Date(state.freeMemo.updatedAt)) : "아직 저장 전";
+      const entry = currentMemoEntry();
+      const text = entry?.text || "";
+      const entries = sortedMemoEntries();
+      const updated = entry?.updatedAt ? formatTime(new Date(entry.updatedAt)) : "아직 저장 전";
       document.getElementById("freeMemo").innerHTML = `
         <div class="memo-board">
           <div class="card">
             <div class="section-head">
               <div><h3>의식의 흐름 메모장</h3><p>정리하지 말고 일단 전부 적어두는 공간입니다. 줄바꿈을 많이 쓰면 도식화가 더 잘 됩니다.</p></div>
-              <span class="pill amber">${updated}</span>
+              <div class="memo-tools">
+                <select onchange="selectMemoEntry(this.value)" title="이전 메모 불러오기">
+                  ${entries.map((memo) => `<option value="${esc(memo.id)}" ${memo.id === entry.id ? "selected" : ""}>${dateLabel(memo.date)} · ${esc(memo.title || "제목 없음")}</option>`).join("")}
+                </select>
+                <button type="button" onclick="createMemoEntry()">새 메모 추가</button>
+                <button type="button" onclick="deleteMemoEntry()">메모 삭제</button>
+              </div>
+            </div>
+            <div class="memo-meta">
+              <label>날짜<input type="date" value="${esc(entry.date || todayIso())}" onchange="editMemoMeta('date', this.value)"></label>
+              <label>제목<input value="${esc(entry.title || "")}" onchange="editMemoMeta('title', this.value)" placeholder="예: 상가 걱정 정리, 대표님 미팅 메모"></label>
             </div>
             <div style="padding:16px;">
               <textarea class="brain-dump" placeholder="예: 오늘 대표님과 이야기하면서 든 생각, 상가 리스크, 블로그 아이디어, 갑자기 떠오른 걱정, 배우자와 상의할 것..." oninput="editFreeMemo(this.value)">${esc(text)}</textarea>
+              <p class="muted" style="margin-top:8px;">현재 메모: ${dateLabel(entry.date)} · ${esc(entry.title || "제목 없음")} · ${updated}</p>
             </div>
           </div>
           <div class="card">
@@ -1959,7 +2234,7 @@
               <div><h3>자동 요약·도식화</h3><p>메모 내용을 바탕으로 핵심 문장, 키워드, 생각 흐름을 정리합니다.</p></div>
               <button type="button" onclick="renderFreeMemo()">다시 정리</button>
             </div>
-            <div class="summary-panel" style="padding:16px;">${memoAnalysisHtml()}</div>
+            <div class="summary-panel" style="padding:16px;">${memoAnalysisHtml(text)}</div>
           </div>
         </div>`;
     }
@@ -2088,12 +2363,66 @@
     }
 
     function editFreeMemo(value) {
-      state.freeMemo = state.freeMemo || {};
+      const entry = currentMemoEntry();
+      entry.text = value;
+      entry.updatedAt = new Date().toISOString();
       state.freeMemo.text = value;
-      state.freeMemo.updatedAt = new Date().toISOString();
+      state.freeMemo.updatedAt = entry.updatedAt;
       localStorage.setItem(storageKey, JSON.stringify(state));
       setSaveStatus(authSession ? `메모 자동저장 준비 ${formatTime()}` : `메모 이 기기에 저장됨 ${formatTime()}`);
       if (authSession) queueCloudSave(false);
+    }
+
+    function editMemoMeta(key, value) {
+      snapshotForUndo();
+      const entry = currentMemoEntry();
+      entry[key] = value;
+      if (key === "date" && !entry.title) entry.title = defaultMemoTitle(value);
+      entry.updatedAt = new Date().toISOString();
+      state.freeMemo.text = entry.text || "";
+      state.freeMemo.updatedAt = entry.updatedAt;
+      recordActivity("생각 메모장", key === "date" ? "메모 날짜" : "메모 제목", value);
+      saveState(false);
+    }
+
+    function selectMemoEntry(id) {
+      ensureMemoArchive();
+      if (!state.freeMemo.entries.some((entry) => entry.id === id)) return;
+      state.freeMemo.activeId = id;
+      state.freeMemo.text = currentMemoEntry()?.text || "";
+      state.freeMemo.updatedAt = currentMemoEntry()?.updatedAt || "";
+      localStorage.setItem(storageKey, JSON.stringify(state));
+      renderFreeMemo();
+    }
+
+    function createMemoEntry() {
+      snapshotForUndo();
+      const date = todayIso();
+      const id = makeMemoId(date);
+      const entry = { id, date, title: defaultMemoTitle(date), text: "", updatedAt: new Date().toISOString() };
+      ensureMemoArchive().entries.push(entry);
+      state.freeMemo.activeId = id;
+      state.freeMemo.text = "";
+      state.freeMemo.updatedAt = entry.updatedAt;
+      recordActivity("생각 메모장", "새 메모 추가", entry.title);
+      saveState(false);
+    }
+
+    function deleteMemoEntry() {
+      const archive = ensureMemoArchive();
+      if (archive.entries.length <= 1) {
+        alert("메모는 최소 1개가 필요합니다. 내용만 비워서 새로 쓰면 됩니다.");
+        return;
+      }
+      const entry = currentMemoEntry();
+      if (!confirm(`${entry.title || "현재 메모"}를 삭제할까요?`)) return;
+      snapshotForUndo();
+      archive.entries = archive.entries.filter((memo) => memo.id !== entry.id);
+      archive.activeId = sortedMemoEntries()[0]?.id || archive.entries[0]?.id;
+      state.freeMemo.text = currentMemoEntry()?.text || "";
+      state.freeMemo.updatedAt = currentMemoEntry()?.updatedAt || "";
+      recordActivity("생각 메모장", "메모 삭제", entry.title || entry.date);
+      saveState(false);
     }
 
     function toggleTodo(index) {
@@ -2414,6 +2743,7 @@
         try {
           snapshotForUndo();
           state = mergeDeep(clone(defaults), JSON.parse(reader.result));
+          normalizeState();
           saveState(false);
         } catch {
           alert("복원 파일을 읽지 못했습니다.");
@@ -2425,6 +2755,7 @@
       if (!confirm("모든 입력값을 초기 상태로 되돌릴까요?")) return;
       snapshotForUndo();
       state = clone(defaults);
+      normalizeState();
       localStorage.removeItem(storageKey);
       saveState(false);
     });
