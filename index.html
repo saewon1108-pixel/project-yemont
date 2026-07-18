@@ -1420,19 +1420,33 @@
 
     function ensureMemoArchive() {
       state.freeMemo = state.freeMemo || {};
+      const legacyText = state.freeMemo.text || "";
+      const legacyUpdated = state.freeMemo.updatedAt || "";
       if (!Array.isArray(state.freeMemo.entries)) {
-        const legacyText = state.freeMemo.text || "";
-        const legacyUpdated = state.freeMemo.updatedAt || new Date().toISOString();
-        const legacyDate = String(legacyUpdated).slice(0, 10) || todayIso();
+        const firstUpdated = legacyUpdated || new Date().toISOString();
+        const legacyDate = String(firstUpdated).slice(0, 10) || todayIso();
         const id = makeMemoId(legacyDate);
         state.freeMemo.entries = [{
           id,
           date: legacyDate,
           title: defaultMemoTitle(legacyDate),
           text: legacyText,
-          updatedAt: legacyUpdated
+          updatedAt: firstUpdated
         }];
         state.freeMemo.activeId = id;
+      }
+      const hasLegacyText = legacyText.trim();
+      const entriesAreBlank = state.freeMemo.entries.every((entry) => !String(entry.text || "").trim());
+      if (hasLegacyText && entriesAreBlank) {
+        const legacyDate = String(legacyUpdated || new Date().toISOString()).slice(0, 10) || todayIso();
+        const target = state.freeMemo.entries[0] || {};
+        target.id = target.id || makeMemoId(legacyDate);
+        target.date = target.date || legacyDate;
+        target.title = target.title && !target.title.includes("2026.07.18 메모") ? target.title : defaultMemoTitle(legacyDate);
+        target.text = legacyText;
+        target.updatedAt = legacyUpdated || new Date().toISOString();
+        state.freeMemo.entries[0] = target;
+        state.freeMemo.activeId = target.id;
       }
       if (!state.freeMemo.entries.length) {
         const date = todayIso();
